@@ -7,9 +7,9 @@
 <style>
 :root {
   --bg: #F8FAFC;
-  --card: rgba(255,255,255,0.75);
+  --card: rgba(255,255,255,0.82);
   --card-solid: #ffffff;
-  --card2: rgba(255,255,255,0.9);
+  --card2: rgba(255,255,255,0.95);
   --accent: #2563EB;
   --accent-dim: rgba(37,99,235,0.1);
   --accent-border: rgba(37,99,235,0.25);
@@ -18,7 +18,7 @@
   --text: #0F172A;
   --muted: #64748B;
   --muted2: #94A3B8;
-  --border: rgba(15,23,42,0.08);
+  --border: rgba(15,23,42,0.07);
   --border2: rgba(15,23,42,0.04);
   --danger: #EF4444;
   --danger-dim: rgba(239,68,68,0.1);
@@ -28,12 +28,13 @@
   --gold-dim: rgba(245,158,11,0.1);
   --silver: #94A3B8;
   --bronze: #B45309;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 4px 24px rgba(15,23,42,0.08);
-  --shadow-sm: 0 2px 8px rgba(15,23,42,0.06);
-  --shadow-card: 0 1px 3px rgba(15,23,42,0.06), 0 8px 24px rgba(15,23,42,0.04);
-  --blur: blur(16px);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 32px rgba(15,23,42,0.10);
+  --shadow-sm: 0 2px 10px rgba(15,23,42,0.07);
+  --shadow-card: 0 2px 8px rgba(15,23,42,0.04), 0 10px 30px rgba(15,23,42,0.06);
+  --shadow-btn: 0 4px 14px rgba(37,99,235,0.35);
+  --blur: blur(20px);
   --transition: 0.2s ease;
 }
 
@@ -41,11 +42,12 @@
 html,body{height:100%;overflow:hidden}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
-  background: radial-gradient(circle at 85% 10%, rgba(125,211,252,0.28) 0%, transparent 40%),
-              radial-gradient(circle at 10% 90%, rgba(94,234,212,0.22) 0%, transparent 40%),
-              radial-gradient(circle at 50% 50%, rgba(37,99,235,0.04) 0%, transparent 60%),
-              #F8FAFC;
-  background-attachment: fixed;
+  background:
+    radial-gradient(ellipse at 85% 5%, rgba(37,99,235,0.13) 0%, transparent 40%),
+    radial-gradient(ellipse at 10% 95%, rgba(56,189,248,0.11) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(90,168,151,0.06) 0%, transparent 55%),
+    #F8FAFC;
+  background-attachment:fixed;
   color:var(--text);font-size:14px;line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
@@ -78,24 +80,30 @@ a{color:inherit;text-decoration:none}
 
 /* ── BOTTOM NAV ── */
 .bottomnav{
-  height:64px;flex-shrink:0;
-  background:rgba(255,255,255,0.85);
+  height:68px;flex-shrink:0;
+  background:rgba(255,255,255,0.75);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  border-top:1px solid var(--border);
-  display:flex;align-items:stretch;z-index:40;
-  padding:0 4px;
+  border-top:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 -4px 24px rgba(15,23,42,0.06);
+  display:flex;align-items:center;z-index:40;
+  padding:0 8px;gap:2px;
 }
 .nav-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;color:var(--muted2);transition:var(--transition);
-  padding:8px 0;position:relative;border-radius:12px;margin:6px 2px;
+  gap:3px;color:var(--muted2);
+  transition:color 0.2s ease, transform 0.15s ease;
+  padding:8px 4px;position:relative;border-radius:16px;height:52px;
 }
-.nav-btn svg{width:20px;height:20px;stroke-width:1.75}
-.nav-btn span{font-size:10px;font-weight:600;letter-spacing:0.3px}
+.nav-btn svg{width:20px;height:20px;stroke-width:1.75;transition:transform 0.2s ease}
+.nav-btn span{font-size:10px;font-weight:600;letter-spacing:0.3px;transition:color 0.2s ease}
+.nav-btn:active{transform:scale(0.92)}
 .nav-btn.active{color:var(--accent)}
+.nav-btn.active svg{transform:scale(1.1)}
 .nav-btn.active::before{
   content:'';position:absolute;inset:0;
-  background:var(--accent-dim);border-radius:12px;
+  background:linear-gradient(135deg,rgba(37,99,235,0.12),rgba(37,99,235,0.07));
+  border-radius:16px;
+  border:1px solid rgba(37,99,235,0.15);
 }
 
 /* ── AUTH ── */
@@ -150,19 +158,24 @@ a{color:inherit;text-decoration:none}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:7px;padding:12px 18px;
-  border-radius:var(--radius-sm);font-size:14px;font-weight:600;
-  transition:var(--transition);cursor:pointer;border:none;outline:none;
+  gap:7px;padding:13px 20px;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:700;
+  transition:all 0.2s ease;cursor:pointer;border:none;outline:none;
+  letter-spacing:0.1px;
 }
-.btn:active{opacity:0.85;transform:scale(0.98)}
-.btn-primary{background:var(--accent);color:#fff;width:100%;box-shadow:0 2px 8px rgba(37,99,235,0.3)}
-.btn-primary:hover{background:#1d4ed8}
+.btn:active{transform:scale(0.97);opacity:0.9}
+.btn-primary{
+  background:linear-gradient(135deg,#2563EB,#1d4ed8);
+  color:#fff;width:100%;
+  box-shadow:var(--shadow-btn);
+}
+.btn-primary:hover{background:linear-gradient(135deg,#1d4ed8,#1e40af);box-shadow:0 6px 20px rgba(37,99,235,0.45);transform:translateY(-1px)}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--muted);width:100%}
-.btn-outline:hover{border-color:var(--accent-border);color:var(--accent)}
-.btn-ghost{background:transparent;color:var(--muted);padding:8px;border-radius:8px}
+.btn-outline:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim)}
+.btn-ghost{background:transparent;color:var(--muted);padding:8px;border-radius:10px}
 .btn-ghost:hover{background:var(--accent-dim);color:var(--accent)}
-.btn-danger{background:var(--danger-dim);color:var(--danger);width:100%}
-.btn-danger:hover{background:rgba(239,68,68,0.18)}
+.btn-danger{background:var(--danger-dim);color:var(--danger);width:100%;border:1px solid rgba(239,68,68,0.15)}
+.btn-danger:hover{background:rgba(239,68,68,0.18);transform:translateY(-1px)}
 .btn svg{width:16px;height:16px;flex-shrink:0}
 
 .divider{
@@ -180,13 +193,14 @@ a{color:inherit;text-decoration:none}
 /* ── CARDS ── */
 .card{
   background:var(--card);
-  border:1px solid rgba(255,255,255,0.7);
+  border:1px solid rgba(255,255,255,0.8);
   border-radius:var(--radius);overflow:hidden;
   box-shadow:var(--shadow-card);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  transition:var(--transition);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
 }
-.card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.card:active{transform:scale(0.99)}
 .card-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 16px;border-bottom:1px solid var(--border2);
@@ -233,10 +247,20 @@ a{color:inherit;text-decoration:none}
 /* ── EMPTY STATE ── */
 .empty{
   display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:10px;padding:48px 24px;text-align:center;
+  justify-content:center;gap:12px;padding:52px 24px;text-align:center;
+  animation:fadeSlideUp 0.4s ease both;
 }
-.empty svg{width:44px;height:44px;color:var(--muted2);stroke-width:1.25}
-.empty-title{font-size:15px;font-weight:600;color:var(--muted)}
+.empty-icon{
+  width:72px;height:72px;border-radius:22px;
+  background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(90,168,151,0.08));
+  border:1px solid rgba(37,99,235,0.12);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:4px;
+}
+.empty svg{width:32px;height:32px;color:var(--muted2);stroke-width:1.25}
+.empty-icon svg{width:32px;height:32px;color:var(--accent);stroke-width:1.5}
+.empty-title{font-size:16px;font-weight:700;color:var(--text)}
+.empty-personality{font-size:13px;color:var(--muted);font-style:italic}
 .empty-sub{font-size:13px;color:var(--muted2)}
 
 /* ── AVATAR ── */
@@ -307,40 +331,42 @@ a{color:inherit;text-decoration:none}
 /* ── RANKING ── */
 .podium{
   display:flex;align-items:flex-end;gap:8px;
-  padding:4px 0 20px;justify-content:center;
+  padding:8px 0 24px;justify-content:center;
 }
 .podium-slot{
   display:flex;flex-direction:column;align-items:center;gap:6px;
-  flex:1;max-width:108px;
+  flex:1;max-width:112px;
 }
 .podium-avatar-wrap{position:relative}
-.podium-crown{
-  position:absolute;top:-20px;left:50%;transform:translateX(-50%);
-  font-size:18px;pointer-events:none;
-}
 .podium-bar{
-  width:100%;border-radius:8px 8px 0 0;
-  background:rgba(15,23,42,0.05);border:1px solid var(--border);border-bottom:none;
+  width:100%;border-radius:10px 10px 0 0;
+  background:rgba(15,23,42,0.04);border:1px solid var(--border);border-bottom:none;
 }
-.podium-pos-1 .podium-bar{height:72px;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06)}
-.podium-pos-2 .podium-bar{height:50px}
-.podium-pos-3 .podium-bar{height:36px}
-.podium-pos-1 .avatar{border:2px solid var(--gold);box-shadow:0 0 16px rgba(245,158,11,0.25)}
+.podium-pos-1 .podium-bar{height:76px;border-color:rgba(245,158,11,0.25);background:linear-gradient(180deg,rgba(245,158,11,0.08),rgba(245,158,11,0.03))}
+.podium-pos-2 .podium-bar{height:52px}
+.podium-pos-3 .podium-bar{height:38px}
+.podium-pos-1 .avatar{
+  width:52px;height:52px;font-size:18px;
+  border:2px solid var(--gold);
+  box-shadow:0 4px 20px rgba(245,158,11,0.3);
+}
 .podium-pos-2 .avatar{border:2px solid var(--silver)}
 .podium-pos-3 .avatar{border:2px solid var(--bronze)}
-.podium-name{font-size:12px;font-weight:600;color:var(--text);text-align:center}
-.podium-pts{font-size:15px;font-weight:800;color:var(--accent)}
-.podium-rank{font-size:11px;color:var(--muted)}
+.podium-name{font-size:12px;font-weight:600;color:var(--text);text-align:center;line-height:1.2}
+.podium-pts{font-size:16px;font-weight:800;color:var(--accent)}
+.podium-rank{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
 
 .rank-item{
   display:flex;align-items:center;gap:12px;
-  padding:12px 14px;border-radius:var(--radius-sm);margin-bottom:6px;
-  background:var(--card);border:1px solid rgba(255,255,255,0.7);
+  padding:13px 16px;border-radius:var(--radius);margin-bottom:8px;
+  background:var(--card);border:1px solid rgba(255,255,255,0.85);
   box-shadow:var(--shadow-card);
-  backdrop-filter:var(--blur);transition:var(--transition);
+  backdrop-filter:var(--blur);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  animation:fadeSlideUp 0.25s ease both;
 }
-.rank-item:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
-.rank-item.me{border-color:var(--accent-border);background:rgba(37,99,235,0.06)}
+.rank-item:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.rank-item.me{border-color:var(--accent-border);background:linear-gradient(135deg,rgba(37,99,235,0.07),rgba(37,99,235,0.03))}
 .rank-pos{width:24px;text-align:center;font-size:13px;font-weight:700;color:var(--muted2)}
 .rank-info{flex:1;min-width:0}
 .rank-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
@@ -354,59 +380,71 @@ a{color:inherit;text-decoration:none}
 /* ── MATCH CARDS ── */
 .match-card{
   background:var(--card);
-  border:1px solid rgba(255,255,255,0.7);
-  border-radius:var(--radius);margin-bottom:12px;
+  border:1px solid rgba(255,255,255,0.85);
+  border-radius:var(--radius);margin-bottom:14px;
   overflow:hidden;
   box-shadow:var(--shadow-card);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  transition:var(--transition);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  animation:fadeSlideUp 0.3s ease both;
 }
-.match-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.match-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(15,23,42,0.11)}
+.match-card:active{transform:scale(0.99)}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .match-card-head{
   display:flex;align-items:center;justify-content:space-between;
   padding:10px 14px 9px;border-bottom:1px solid var(--border2);
 }
 .match-comp{font-size:11px;color:var(--muted);font-weight:500}
-.match-body{display:flex;align-items:center;padding:20px 14px 16px;gap:8px}
-.match-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px}
-.team-flag{font-size:40px;line-height:1}
-.team-name{font-size:13px;font-weight:600;text-align:center;color:var(--text)}
-.team-code{font-size:11px;color:var(--muted)}
-.match-vs{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:88px}
+.match-body{display:flex;align-items:center;padding:22px 16px 18px;gap:8px}
+.match-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+.team-flag{font-size:44px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))}
+.team-name{font-size:13px;font-weight:700;text-align:center;color:var(--text)}
+.team-code{font-size:11px;color:var(--muted);font-weight:500}
+.match-vs{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:92px}
 .score-live{display:flex;align-items:center;gap:6px}
 .score-num{font-size:30px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
 .score-sep{font-size:20px;color:var(--muted2)}
 .match-bet-row{
-  padding:12px 14px 14px;
-  background:rgba(37,99,235,0.03);
-  border-top:1px solid var(--border2);
+  padding:14px 16px 16px;
+  background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(37,99,235,0.02));
+  border-top:1px solid rgba(37,99,235,0.08);
 }
-.bet-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
-.bet-inputs{display:flex;align-items:center;gap:8px}
-.stepper{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
+.bet-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.bet-inputs{display:flex;align-items:center;gap:10px}
+.stepper{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
 .step-btn{
-  width:30px;height:30px;border-radius:8px;flex-shrink:0;
-  background:rgba(15,23,42,0.06);color:var(--text);font-size:18px;
-  border:1px solid var(--border);transition:var(--transition);
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,255,255,0.9);color:var(--text);font-size:20px;line-height:1;
+  border:1.5px solid var(--border);
+  transition:all 0.15s ease;
+  box-shadow:0 1px 4px rgba(15,23,42,0.06);
+  display:flex;align-items:center;justify-content:center;
 }
-.step-btn:hover{background:var(--accent-dim);border-color:var(--accent-border);color:var(--accent)}
+.step-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;transform:scale(1.08);box-shadow:0 3px 10px rgba(37,99,235,0.3)}
+.step-btn:active{transform:scale(0.93)}
 .step-val{
-  width:42px;height:36px;
-  background:#fff;border:1.5px solid var(--border);
-  border-radius:8px;text-align:center;font-size:18px;
-  font-weight:700;color:var(--text);outline:none;transition:var(--transition);
+  width:48px;height:40px;
+  background:#fff;border:2px solid var(--border);
+  border-radius:10px;text-align:center;font-size:20px;
+  font-weight:800;color:var(--text);outline:none;
+  transition:all 0.15s ease;
+  box-shadow:0 1px 4px rgba(15,23,42,0.06);
 }
 .step-val:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.vs-sep{font-size:13px;color:var(--muted2);font-weight:600;flex-shrink:0}
+.vs-sep{font-size:14px;color:var(--muted2);font-weight:700;flex-shrink:0}
 .btn-save-bet{
-  padding:8px 16px;border-radius:8px;flex-shrink:0;
-  background:var(--accent);color:#fff;
-  font-size:12px;font-weight:600;letter-spacing:0.2px;
-  transition:var(--transition);opacity:0.3;pointer-events:none;
+  padding:10px 18px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#2563EB,#1d4ed8);color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:0.3px;
+  transition:all 0.2s ease;
+  opacity:0.35;pointer-events:none;
+  box-shadow:0 2px 8px rgba(37,99,235,0.2);
 }
-.btn-save-bet.ready{opacity:1;pointer-events:auto}
-.btn-save-bet.ready:hover{background:#1d4ed8}
-.btn-save-bet.saved{background:var(--success);opacity:1;pointer-events:auto}
+.btn-save-bet.ready{opacity:1;pointer-events:auto;box-shadow:var(--shadow-btn)}
+.btn-save-bet.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}
+.btn-save-bet.ready:active{transform:scale(0.96)}
+.btn-save-bet.saved{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 4px 14px rgba(22,163,74,0.35);opacity:1;pointer-events:auto}
 .date-strip{
   display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;
   padding-bottom:4px;scrollbar-width:none;
@@ -468,11 +506,14 @@ a{color:inherit;text-decoration:none}
 
 /* ── GRUPOS ── */
 .group-card{
-  background:var(--card);border:1px solid rgba(255,255,255,0.7);
+  background:var(--card);border:1px solid rgba(255,255,255,0.85);
   border-radius:var(--radius);margin-bottom:10px;overflow:hidden;
-  box-shadow:var(--shadow-card);transition:var(--transition);
+  box-shadow:var(--shadow-card);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  animation:fadeSlideUp 0.3s ease both;
 }
-.group-card:hover{cursor:pointer;transform:translateY(-1px);box-shadow:var(--shadow)}
+.group-card:hover{cursor:pointer;transform:translateY(-3px);box-shadow:0 12px 36px rgba(15,23,42,0.11)}
+.group-card:active{transform:scale(0.98)}
 .group-card-body{padding:14px 16px;display:flex;align-items:center;gap:12px}
 .group-icon{
   width:44px;height:44px;border-radius:12px;
@@ -598,12 +639,15 @@ a{color:inherit;text-decoration:none}
 
 /* ── TOAST ── */
 .toast{
-  position:fixed;bottom:80px;left:50%;
-  transform:translateX(-50%) translateY(12px);
-  background:var(--text);border-radius:var(--radius-sm);
-  padding:10px 18px;font-size:13px;font-weight:500;color:#fff;
-  opacity:0;transition:0.25s;pointer-events:none;
-  white-space:nowrap;z-index:999;box-shadow:var(--shadow);
+  position:fixed;bottom:84px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:linear-gradient(135deg,#0F172A,#1e293b);
+  border-radius:14px;
+  padding:11px 20px;font-size:13px;font-weight:600;color:#fff;
+  opacity:0;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;white-space:nowrap;z-index:999;
+  box-shadow:0 8px 24px rgba(15,23,42,0.25);
+  border:1px solid rgba(255,255,255,0.08);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -1352,20 +1396,22 @@ function renderPalpites(){
 
   if(!matchesFiltered.length){
     html+=`<div class="empty">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
       <div class="empty-title">Nenhum jogo nessa data</div>
-      <div class="empty-sub">Selecione outra data ou aguarde a divulgação da tabela</div>
+      <div class="empty-sub">Selecione outra data ou aguarde a tabela ser divulgada</div>
     </div>`;
   } else {
     let lastDate='';
-    matchesFiltered.forEach(m=>{
+    matchesFiltered.forEach((m,i)=>{
       const d=fmtDate(m.kickoffAt);
       if(d!==lastDate){
         const cnt=matchesFiltered.filter(x=>fmtDate(x.kickoffAt)===d).length;
         html+=`<div class="date-label">${d} <span class="badge badge-muted" style="font-size:10px;margin-left:4px">${cnt} jogo${cnt>1?'s':''}</span></div>`;
         lastDate=d;
       }
-      html+=matchCard(m);
+      html+=matchCardWithDelay(m,i);
     });
   }
   c.innerHTML=html;
@@ -1380,7 +1426,11 @@ function setPalpiteFilter(f){
   renderPalpites();
 }
 
-function matchCard(m){
+function matchCardWithDelay(m,i){
+  return matchCard(m,i);
+}
+
+function matchCard(m,idx=0){
   const bet=S.bets.find(b=>b.matchId===m.id);
   const hf=flag(m.homeTeam),af=flag(m.awayTeam);
   const live=m.status==='live',fin=m.status==='finished',sched=m.status==='scheduled';
@@ -1410,8 +1460,8 @@ function matchCard(m){
     <div class="text-xs text-muted" style="margin-top:2px">Palpite salvo</div>`;
   }else{
     vsEl=`<div style="text-align:center">
-      <div style="font-size:22px;color:var(--muted2)">VS</div>
-      <div class="text-xs text-muted">fazer palpite</div>
+      <div style="font-size:18px;font-weight:800;color:var(--muted2);letter-spacing:1px">VS</div>
+      <div class="text-xs" style="color:var(--muted2);margin-top:3px;font-style:italic">hora de apostar</div>
     </div>`;
   }
   let betEl='';
@@ -1450,7 +1500,8 @@ function matchCard(m){
       ${chip}
     </div>`;
   }
-  return `<div class="match-card">
+  const delay=Math.min(idx*60,300);
+  return `<div class="match-card" style="animation-delay:${delay}ms">
     <div class="match-card-head">
       <span class="match-comp">${m.competition} · ${m.round}</span>
       <div style="display:flex;align-items:center;gap:6px">${stageEl}${timeEl}</div>
@@ -1491,13 +1542,17 @@ async function saveBet(mid){
   const ba=parseInt(q(`#ba-${mid}`)?.value);
   if(isNaN(bh)||isNaN(ba))return;
   const btn=q(`#bs-${mid}`);
-  if(btn){btn.textContent='...';btn.style.pointerEvents='none'}
+  if(btn){btn.textContent='Salvando...';btn.style.pointerEvents='none';btn.style.opacity='0.7'}
   const d=await api('POST','/bets',{matchId:mid,predictedHome:bh,predictedAway:ba});
-  if(d.error){toast(d.error);if(btn){btn.textContent='Salvar';btn.style.pointerEvents=''}return}
+  if(d.error){
+    toast('Erro ao salvar. Tente novamente.');
+    if(btn){btn.textContent='Salvar';btn.style.pointerEvents='';btn.style.opacity=''}
+    return;
+  }
   const idx=S.bets.findIndex(b=>b.matchId===mid);
   if(idx!==-1)S.bets[idx]=d;else S.bets.push(d);
-  if(btn){btn.classList.add('saved');btn.textContent='Salvo';btn.style.pointerEvents=''}
-  toast(`Palpite ${bh}×${ba} salvo`);
+  if(btn){btn.classList.add('saved');btn.textContent='Salvo!';btn.style.pointerEvents='';btn.style.opacity=''}
+  toast('Palpite salvo com sucesso. Boa sorte!');
 }
 
 /* ── PERGUNTAS BÔNUS ── */
@@ -1658,7 +1713,7 @@ function renderGrupos(){
   const actionCards=`
     <div class="section-head" style="margin-top:16px"><span class="section-title">Mais opções</span></div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="group-card" onclick="openModal('create')" style="border:1.5px dashed var(--border)">
+      <div class="group-card" onclick="openModal('create')" style="border:1.5px dashed rgba(90,168,151,0.4)">
         <div class="group-card-body">
           <div class="group-icon" style="background:var(--teal-dim);border-color:rgba(90,168,151,0.2)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -1670,7 +1725,7 @@ function renderGrupos(){
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--muted2)"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
-      <div class="group-card" onclick="openModal('join')" style="background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2)">
+      <div class="group-card" onclick="openModal('join')" style="background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.2)">
         <div class="group-card-body">
           <div class="group-icon" style="background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.25)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
@@ -1686,10 +1741,13 @@ function renderGrupos(){
 
   if(!S.groups.length){
     c.innerHTML=`
-      <div class="empty" style="padding:36px 24px">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <div class="empty-title">Nenhum grupo ainda</div>
-        <div class="empty-sub">Crie um bolão com seus amigos ou entre com um código de convite</div>
+      <div class="empty">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="empty-title">Você ainda não entrou no jogo</div>
+        <div class="empty-sub">Crie um bolão com amigos ou entre com um código de convite</div>
+        <button class="btn btn-primary" style="width:auto;padding:13px 28px;margin-top:8px;font-size:14px" onclick="openModal('create')">Criar meu primeiro grupo</button>
       </div>${actionCards}`;
     return;
   }
@@ -1768,10 +1826,10 @@ function renderRanking(){
     const[r1,r2,r3]=S.ranking;
     html+=`<div class="section-head"><span class="section-title">Classificação</span></div>
     <div class="podium">${podiumSlot(r2,2)}${podiumSlot(r1,1)}${podiumSlot(r3,3)}</div>`;
-    html+=S.ranking.slice(3).map(u=>rankItem(u)).join('');
+    html+=S.ranking.slice(3).map((u,i)=>rankItem(u,i+3)).join('');
   } else {
     html+=`<div class="section-head"><span class="section-title">Classificação</span></div>`;
-    html+=S.ranking.map(u=>rankItem(u)).join('');
+    html+=S.ranking.map((u,i)=>rankItem(u,i)).join('');
   }
 
   if(S.ranking.length>1){
@@ -1838,14 +1896,15 @@ function podiumSlot(u,pos){
   </div>`;
 }
 
-function rankItem(u){
+function rankItem(u,idx=0){
   const isMe=u.id===S.user?.id;
+  const delay=Math.min(idx*50,400);
   const varEl=u.rankVariation>0
     ?`<span class="rank-var up">▲${u.rankVariation}</span>`
     :u.rankVariation<0
       ?`<span class="rank-var dn">▼${Math.abs(u.rankVariation)}</span>`
       :`<span class="rank-var eq">—</span>`;
-  return`<div class="rank-item${isMe?' me':''}">
+  return`<div class="rank-item${isMe?' me':''}" style="animation-delay:${delay}ms">
     <div class="rank-pos">${u.rank}</div>
     <div class="avatar avatar-sm" style="background:${u.avatarColor||'#2563EB'}">${u.avatarInitials||'?'}</div>
     <div class="rank-info">
@@ -2121,22 +2180,22 @@ async function doCreateGroup(){
   const name=q('#cg-name').value.trim();
   const type=q('#cg-type').value;
   const password=q('#cg-pass').value;
-  if(!name)return toast('Nome do grupo obrigatório');
+  if(!name)return toast('Dê um nome para o grupo primeiro');
   const d=await api('POST','/clubs',{name,type,password});
-  if(d.error)return toast(d.error);
+  if(d.error)return toast('Erro ao criar grupo. Tente novamente.');
   S.groups.push(d);
   closeModal('create');
-  toast('Grupo criado com sucesso');
+  toast('Grupo criado! Convide seus amigos.');
   goPage('grupos');
 }
 async function doJoinGroup(){
   const inviteCode=q('#jg-code').value.trim().toUpperCase();
   const password=q('#jg-pass').value;
-  if(!inviteCode)return toast('Código obrigatório');
+  if(!inviteCode)return toast('Cole o código de convite aqui');
   const d=await api('POST','/clubs/join',{inviteCode,password});
-  if(d.error)return toast(d.error);
+  if(d.error)return toast(d.error==='Group not found'?'Código inválido. Verifique e tente novamente.':d.error);
   closeModal('join');
-  toast('Entrou no grupo');
+  toast('Bem-vindo ao grupo! Boa sorte.');
   const groups=await api('GET','/clubs');
   if(Array.isArray(groups)){S.groups=groups;renderGrupos()}
 }
