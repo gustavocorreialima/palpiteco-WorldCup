@@ -1,0 +1,117 @@
+version: "3.9"
+
+# =============================================================================
+# Premium Predictor — Local Development Stack
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 15
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       predictor
+      POSTGRES_USER:     predictor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../docs/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U predictor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Redis 7 — Ranking cache + Pub/Sub for live updates
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      redis-server
+        --maxmemory 256mb
+        --maxmemory-policy allkeys-lru
+        --appendonly yes
+        --appendfsync everysec
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Backend API (Node.js / TypeScript)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    environment:
+      NODE_ENV:           development
+      PORT:               3000
+      DATABASE_URL:       postgres://predictor:${POSTGRES_PASSWORD:-dev_secret}@postgres:5432/predictor
+      REDIS_URL:          redis://redis:6379
+      JWT_SECRET:         ${JWT_SECRET:-dev_jwt_secret_change_in_prod}
+      JWT_EXPIRY:         7d
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../backend:/app
+      - /app/node_modules           # anonymous volume keeps container modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npm run dev
+
+  # ---------------------------------------------------------------------------
+  # Data Pipeline (Python / FastAPI)
+  # ---------------------------------------------------------------------------
+  pipeline:
+    build:
+      context: ../../data-pipeline
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL:         postgresql+asyncpg://predictor:${POSTGRES_PASSWORD:-dev_secret}@postgres:5432/predictor
+      REDIS_URL:            redis://redis:6379
+      API_FOOTBALL_KEY:     ${API_FOOTBALL_KEY:-your_api_key_here}
+      TARGET_LEAGUES:       "39,140,71,135,78"  # PL, LaLiga, Brasileirão, SerieA, Bundesliga
+      TARGET_SEASON:        "2025"
+      SYNC_LIVE_INTERVAL_S: "60"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Nginx reverse proxy (routes /api → api:3000, /pipeline → pipeline:8000)
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - pipeline
+
+volumes:
+  postgres_data:
+  redis_data:
