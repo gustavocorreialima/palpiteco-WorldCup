@@ -174,6 +174,20 @@ export function getUserFromToken(token: string): User | undefined {
 }
 
 export async function seedDatabase(): Promise<void> {
-  // No seed data — all data comes from user actions at runtime
-  console.log("  DB ready (empty)");
+  // One permanent demo account — always available
+  users.push({
+    id: "demo",
+    username: "demo",
+    displayName: "Demo",
+    email: "demo@bolao.com",
+    passwordHash: "demo",
+    avatarInitials: "DE",
+    avatarColor: "#3A86FF",
+    points: 0, accuracy: 0, streak: 0, rank: 1,
+    level: 1, xp: 0,
+    betsTotal: 0, betsCorrect: 0, betsExact: 0,
+    badges: [], rankVariation: 0,
+  });
+  sessions.set("demo_token", "demo");
+  console.log("  DB ready — demo account: demo@bolao.com / demo");
 }
