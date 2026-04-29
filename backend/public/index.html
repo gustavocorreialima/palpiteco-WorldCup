@@ -111,59 +111,91 @@ a{color:inherit;text-decoration:none}
   position:fixed;inset:0;z-index:110;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   overflow:hidden;
-  animation:fadeIn 0.6s ease both;
+  animation:splashFadeIn 0.5s ease both;
 }
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes splashFadeIn{from{opacity:0}to{opacity:1}}
+
+/* Imagem de fundo — usa <img> posicionada absolute para object-fit */
+#splash-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center center;
+  filter:brightness(1.08) contrast(1.08) saturate(1.05);
+  animation:cinematicZoom 12s ease-in-out infinite alternate;
+  transform-origin:center;
+}
+@keyframes cinematicZoom{from{transform:scale(1.04)}to{transform:scale(1.08)}}
+
+/* Fallback quando sem imagem real */
 #splash-bg{
   position:absolute;inset:0;
-  background-image:var(--hero-img, none);
-  background-size:cover;background-position:center top;
-  background-color:#0d1f0d;
-  animation:zoomIn 10s ease both;
-  transform-origin:center;
-  filter:brightness(1.1) contrast(1.05);
-}
-/* Fallback visual quando sem imagem */
-#splash-bg::after{
-  content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 60% 30%, rgba(37,99,235,0.35) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(90,168,151,0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(245,158,11,0.2) 0%, transparent 45%);
+    radial-gradient(ellipse at 50% 35%, rgba(212,160,10,0.45) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(37,99,235,0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, rgba(90,168,151,0.3) 0%, transparent 45%),
+    linear-gradient(160deg,#071a07 0%,#0d1f2d 60%,#0a1a0a 100%);
+  display:var(--splash-bg-display,block);
 }
-@keyframes zoomIn{from{transform:scale(1.06)}to{transform:scale(1)}}
+
+/* Overlay cinematográfico — topo claro, rodapé escuro */
 #splash-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0.55) 100%);
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.10) 0%,
+    rgba(0,0,0,0.25) 45%,
+    rgba(0,0,0,0.70) 100%
+  );
+  pointer-events:none;
 }
+
+/* Card glassmorphism na parte inferior */
 #splash-content{
   position:relative;z-index:2;
-  width:100%;max-width:420px;
-  padding:0 28px 52px;
+  width:100%;max-width:480px;
+  padding:28px 28px 52px;
   text-align:center;
-  animation:slideUpFade 0.7s 0.3s ease both;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:28px 28px 0 0;
+  animation:splashSlideUp 0.7s 0.2s ease both;
 }
-@keyframes slideUpFade{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes splashSlideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+
 #splash-content h1{
-  font-size:32px;font-weight:700;color:#fff;
-  letter-spacing:-0.5px;line-height:1.2;margin-bottom:10px;
-  text-shadow:0 2px 10px rgba(0,0,0,0.6);
+  font-size:34px;font-weight:800;color:#fff;
+  letter-spacing:-0.5px;line-height:1.15;margin-bottom:10px;
+  text-shadow:0 2px 12px rgba(0,0,0,0.5);
 }
 #splash-content p{
-  font-size:16px;color:rgba(255,255,255,0.72);
-  margin-bottom:36px;line-height:1.5;
+  font-size:16px;color:rgba(255,255,255,0.85);
+  margin-bottom:32px;line-height:1.5;
+  text-shadow:0 1px 6px rgba(0,0,0,0.4);
 }
 .btn-splash{
-  width:100%;height:54px;border-radius:16px;
+  position:relative;overflow:hidden;
+  width:100%;height:56px;border-radius:18px;
   background:linear-gradient(135deg,#2563EB,#3B82F6);
-  color:#fff;font-size:16px;font-weight:700;
+  color:#fff;font-size:17px;font-weight:700;
   border:none;cursor:pointer;
-  box-shadow:0 6px 24px rgba(37,99,235,0.45);
-  transition:all 0.2s ease;
-  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 12px 30px rgba(37,99,235,0.35);
+  transition:transform 0.15s ease,box-shadow 0.15s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
-.btn-splash:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,99,235,0.55)}
-.btn-splash:active{transform:scale(0.97)}
+.btn-splash::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%);
+  background-size:200% 100%;background-position:200% 0;
+  animation:btnShine 3s 1.2s ease infinite;
+}
+@keyframes btnShine{
+  0%{background-position:200% 0}
+  40%{background-position:-100% 0}
+  100%{background-position:-100% 0}
+}
+.btn-splash:hover{box-shadow:0 16px 36px rgba(37,99,235,0.50)}
+.btn-splash:active{transform:scale(0.98);box-shadow:0 6px 18px rgba(37,99,235,0.35)}
 
 #auth-screen{
   position:fixed;inset:0;z-index:100;
@@ -895,12 +927,16 @@ a{color:inherit;text-decoration:none}
 
 <!-- ════════ SPLASH ════════ -->
 <div id="splash-screen">
+  <img id="splash-img" src="/hero.jpg" alt="" onerror="this.style.display='none'">
   <div id="splash-bg"></div>
   <div id="splash-overlay"></div>
   <div id="splash-content">
-    <h1>Bolão de Futebol 2026</h1>
-    <p>O app de bolão mais divertido entre amigos e familiares</p>
-    <button class="btn-splash" onclick="showAuth()">Começar</button>
+    <h1>Bolão 2026</h1>
+    <p>Palpites da Copa do Mundo com seus amigos</p>
+    <button class="btn-splash" onclick="showAuth()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+      Começar
+    </button>
   </div>
 </div>
 
