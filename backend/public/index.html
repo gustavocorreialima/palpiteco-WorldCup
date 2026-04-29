@@ -106,55 +106,155 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(37,99,235,0.15);
 }
 
-/* ── AUTH ── */
+/* ── SPLASH / AUTH ── */
+#splash-screen{
+  position:fixed;inset:0;z-index:110;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  overflow:hidden;
+  animation:fadeIn 0.6s ease both;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#splash-bg{
+  position:absolute;inset:0;
+  background-image:var(--hero-img, none);
+  background-size:cover;background-position:center top;
+  background-color:#0d1f0d;
+  animation:zoomIn 10s ease both;
+  transform-origin:center;
+}
+/* Fallback visual quando sem imagem */
+#splash-bg::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 60% 30%, rgba(37,99,235,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(90,168,151,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(245,158,11,0.2) 0%, transparent 45%);
+}
+@keyframes zoomIn{from{transform:scale(1.06)}to{transform:scale(1)}}
+#splash-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.5) 45%,rgba(0,0,0,0.9) 100%);
+}
+#splash-content{
+  position:relative;z-index:2;
+  width:100%;max-width:420px;
+  padding:0 28px 52px;
+  text-align:center;
+  animation:slideUpFade 0.7s 0.3s ease both;
+}
+@keyframes slideUpFade{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+#splash-content h1{
+  font-size:32px;font-weight:700;color:#fff;
+  letter-spacing:-0.5px;line-height:1.2;margin-bottom:10px;
+  text-shadow:0 2px 12px rgba(0,0,0,0.4);
+}
+#splash-content p{
+  font-size:16px;color:rgba(255,255,255,0.72);
+  margin-bottom:36px;line-height:1.5;
+}
+.btn-splash{
+  width:100%;height:54px;border-radius:16px;
+  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  color:#fff;font-size:16px;font-weight:700;
+  border:none;cursor:pointer;
+  box-shadow:0 6px 24px rgba(37,99,235,0.45);
+  transition:all 0.2s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.btn-splash:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,99,235,0.55)}
+.btn-splash:active{transform:scale(0.97)}
+
 #auth-screen{
   position:fixed;inset:0;z-index:100;
-  display:flex;align-items:center;justify-content:center;
-  padding:24px;
-  background: radial-gradient(circle at 80% 10%, rgba(125,211,252,0.3) 0%, transparent 40%),
-              radial-gradient(circle at 15% 85%, rgba(94,234,212,0.25) 0%, transparent 40%),
-              #F8FAFC;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
+  overflow:hidden;
+}
+#auth-bg{
+  position:absolute;inset:0;
+  background-image:var(--hero-img, none);
+  background-size:cover;background-position:center top;
+  background-color:#0d1f0d;
+  filter:blur(6px);transform:scale(1.08);
+}
+#auth-bg::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 60% 30%, rgba(37,99,235,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(90,168,151,0.3) 0%, transparent 50%);
+}
+#auth-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.65);
 }
 .auth-card{
-  width:100%;max-width:400px;
-  background:rgba(255,255,255,0.85);
-  border:1px solid rgba(255,255,255,0.9);
-  border-radius:24px;padding:32px 28px;
-  box-shadow:0 8px 40px rgba(15,23,42,0.12);
-  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  position:relative;z-index:2;
+  width:100%;max-width:420px;
+  background:rgba(255,255,255,0.09);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:24px 24px 0 0;
+  padding:28px 24px 48px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  animation:slideUpFade 0.35s ease both;
 }
-.auth-header{text-align:center;margin-bottom:28px}
-.auth-logo{
-  width:56px;height:56px;border-radius:16px;
-  background:var(--accent);
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 14px;
-  box-shadow:0 4px 16px rgba(37,99,235,0.35);
+.auth-header{text-align:center;margin-bottom:24px}
+.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.auth-header p{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px}
+
+.auth-social-btn{
+  width:100%;height:50px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:15px;font-weight:600;cursor:pointer;border:none;
+  transition:all 0.2s ease;margin-bottom:10px;
 }
-.auth-logo svg{width:28px;height:28px;color:#fff}
-.auth-header h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
-.auth-header p{font-size:13px;color:var(--muted);margin-top:4px}
+.auth-social-btn:hover{transform:scale(1.02)}
+.auth-social-btn:active{transform:scale(0.97)}
+.auth-btn-google{background:#fff;color:#1f2937}
+.auth-btn-apple{background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15)}
+
+.auth-divider{
+  display:flex;align-items:center;gap:12px;
+  color:rgba(255,255,255,0.4);font-size:12px;
+  margin:14px 0;
+}
+.auth-divider::before,.auth-divider::after{
+  content:'';flex:1;height:1px;background:rgba(255,255,255,0.15);
+}
 
 .tab-row{
-  display:flex;gap:4px;background:rgba(15,23,42,0.05);
-  border-radius:var(--radius-sm);padding:4px;margin-bottom:24px;
+  display:flex;gap:4px;
+  background:rgba(255,255,255,0.08);
+  border-radius:var(--radius-sm);padding:4px;margin-bottom:20px;
+  border:1px solid rgba(255,255,255,0.1);
 }
 .tab-btn{
-  flex:1;padding:8px;border-radius:8px;
-  font-size:13px;font-weight:600;color:var(--muted);transition:var(--transition);
+  flex:1;padding:9px;border-radius:8px;
+  font-size:13px;font-weight:600;color:rgba(255,255,255,0.55);transition:var(--transition);
 }
-.tab-btn.active{background:#fff;color:var(--text);box-shadow:var(--shadow-sm)}
+.tab-btn.active{background:rgba(255,255,255,0.15);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
 
 .form-field{
-  width:100%;padding:12px 14px;
-  background:rgba(255,255,255,0.8);
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  color:var(--text);font-size:14px;margin-bottom:10px;
+  width:100%;padding:14px 16px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:14px;
+  color:#fff;font-size:14px;margin-bottom:10px;
   transition:var(--transition);outline:none;
 }
-.form-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.form-field::placeholder{color:var(--muted2)}
+.form-field:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.14);box-shadow:0 0 0 3px rgba(255,255,255,0.08)}
+.form-field::placeholder{color:rgba(255,255,255,0.4)}
+
+.auth-error{
+  font-size:12px;color:#fca5a5;
+  background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
+  border-radius:10px;padding:9px 12px;margin-bottom:12px;display:none;
+}
+.auth-error.visible{display:block}
+
+.auth-legal{
+  text-align:center;font-size:11px;color:rgba(255,255,255,0.35);
+  line-height:1.6;margin-top:14px;
+}
+.auth-legal a{color:rgba(255,255,255,0.55);text-decoration:underline}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -792,38 +892,66 @@ a{color:inherit;text-decoration:none}
 </head>
 <body>
 
+<!-- ════════ SPLASH ════════ -->
+<div id="splash-screen">
+  <div id="splash-bg"></div>
+  <div id="splash-overlay"></div>
+  <div id="splash-content">
+    <h1>Bolão de Futebol 2026</h1>
+    <p>O app de bolão mais divertido entre amigos e familiares</p>
+    <button class="btn-splash" onclick="showAuth()">Começar</button>
+  </div>
+</div>
+
 <!-- ════════ AUTH ════════ -->
 <div id="auth-screen">
+  <div id="auth-bg"></div>
+  <div id="auth-overlay"></div>
   <div class="auth-card">
     <div class="auth-header">
-      <div class="auth-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-      </div>
       <h1>Bolão 2026</h1>
       <p>Copa do Mundo · Grupos de amigos</p>
     </div>
+
+    <button class="auth-social-btn auth-btn-google" onclick="toast('Google login em breve')">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar com Google
+    </button>
+
+    <button class="auth-social-btn auth-btn-apple" onclick="toast('Apple login em breve')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Continuar com Apple
+    </button>
+
+    <div class="auth-divider">OU</div>
+
     <div class="tab-row">
       <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
       <button class="tab-btn" onclick="switchTab('register')">Cadastrar</button>
     </div>
     <div id="auth-err" class="auth-error"></div>
     <div id="tab-login">
-      <input id="l-email" class="form-field" type="email" placeholder="E-mail" autocomplete="email"/>
+      <input id="l-email" class="form-field" type="email" placeholder="E-mail pessoal ou profissional" autocomplete="email"/>
       <input id="l-pass" class="form-field" type="password" placeholder="Senha"/>
-      <button class="btn btn-primary" onclick="doLogin()">Entrar na conta</button>
+      <button class="btn btn-primary" style="height:50px;border-radius:14px;font-size:15px" onclick="doLogin()">Continuar</button>
     </div>
     <div id="tab-register" style="display:none">
       <input id="r-name" class="form-field" type="text" placeholder="Nome completo"/>
       <input id="r-user" class="form-field" type="text" placeholder="@username"/>
       <input id="r-email" class="form-field" type="email" placeholder="E-mail"/>
       <input id="r-pass" class="form-field" type="password" placeholder="Senha"/>
-      <button class="btn btn-primary" onclick="doRegister()">Criar conta</button>
+      <button class="btn btn-primary" style="height:50px;border-radius:14px;font-size:15px" onclick="doRegister()">Criar conta</button>
     </div>
-    <div class="divider">ou</div>
-    <button class="btn btn-outline" onclick="doDemo()">
+
+    <button class="auth-social-btn" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.12);margin-top:8px" onclick="doDemo()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       Entrar como demonstração
     </button>
+
+    <div class="auth-legal">
+      Ao continuar, você concorda com os <a href="#">Termos de Uso</a> e reconhece a <a href="#">Política de Privacidade</a>.<br><br>
+      Este app não envolve apostas financeiras de nenhum tipo. Apenas diversão entre amigos.
+    </div>
   </div>
 </div>
 
@@ -1203,27 +1331,61 @@ async function doDemo(){
 }
 function setAuthErr(msg){const el=q('#auth-err');el.textContent=msg;el.classList.add('visible')}
 function clearAuthErr(){q('#auth-err').classList.remove('visible')}
+function showAuth(){
+  const splash=q('#splash-screen');
+  const auth=q('#auth-screen');
+  splash.style.opacity='0';
+  splash.style.transition='opacity 0.35s ease';
+  setTimeout(()=>{
+    splash.style.display='none';
+    auth.style.display='flex';
+    auth.style.opacity='0';
+    auth.style.transition='opacity 0.35s ease';
+    requestAnimationFrame(()=>{auth.style.opacity='1'});
+    setTimeout(()=>q('#l-email')?.focus(),400);
+  },350);
+}
+function hideSplashAndAuth(){
+  q('#splash-screen').style.display='none';
+  q('#auth-screen').style.display='none';
+  q('#app').style.display='flex';
+}
 function onAuth(token,user){
   S.token=token;S.user=user;
   localStorage.setItem('token',token);
-  q('#auth-screen').style.display='none';
-  q('#app').style.display='flex';
+  hideSplashAndAuth();
   initApp();
 }
 async function tryAutoLogin(){
-  if(!S.token)return showAuth();
-  const d=await api('GET','/auth/me');
-  if(!d||d.error||!d.id)return showAuth();
-  S.user=d;
+  if(!S.token){
+    // Mostrar splash, esconder auth e app
+    q('#auth-screen').style.display='none';
+    q('#app').style.display='none';
+    return;
+  }
+  // Token existe: tentar auto-login sem mostrar splash
+  q('#splash-screen').style.display='none';
   q('#auth-screen').style.display='none';
+  const d=await api('GET','/auth/me');
+  if(!d||d.error||!d.id){
+    localStorage.removeItem('token');
+    S.token='';
+    q('#splash-screen').style.display='flex';
+    return;
+  }
+  S.user=d;
   q('#app').style.display='flex';
   initApp();
 }
-function showAuth(){q('#auth-screen').style.display='flex';q('#app').style.display='none'}
 async function doLogout(){
   await api('POST','/auth/logout');
-  S.token='';localStorage.removeItem('token');
-  closeModal('logout');showAuth();
+  S.token='';S.user=null;localStorage.removeItem('token');
+  closeModal('logout');
+  q('#app').style.display='none';
+  const splash=q('#splash-screen');
+  splash.style.display='flex';splash.style.opacity='0';
+  splash.style.transition='opacity 0.4s ease';
+  requestAnimationFrame(()=>{splash.style.opacity='1'});
 }
 
 /* ── BOOT ── */
