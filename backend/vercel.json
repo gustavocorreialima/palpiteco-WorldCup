@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "installCommand": "npm install",
+  "buildCommand": "",
   "functions": {
     "api/index.ts": {
       "memory": 256,
