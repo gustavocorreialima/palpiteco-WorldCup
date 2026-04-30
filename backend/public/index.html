@@ -276,6 +276,23 @@ a{color:inherit;text-decoration:none}
 .form-field:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.14);box-shadow:0 0 0 3px rgba(255,255,255,0.08)}
 .form-field::placeholder{color:rgba(255,255,255,0.4)}
 
+/* Variante para modais/fundos brancos */
+.modal-input{
+  width:100%;padding:13px 16px;
+  background:#F8FAFC;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  color:var(--text);font-size:14px;margin-bottom:10px;
+  transition:var(--transition);outline:none;
+}
+.modal-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-dim)}
+.modal-input::placeholder{color:var(--muted2)}
+select.modal-input{cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:36px;
+}
+
 .auth-error{
   font-size:12px;color:#fca5a5;
   background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
@@ -544,9 +561,9 @@ a{color:inherit;text-decoration:none}
   border-top:1px solid rgba(37,99,235,0.08);
 }
 .bet-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
-.bet-inputs{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.bet-inputs-row{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.stepper{display:flex;align-items:center;gap:6px;justify-content:center}
+.bet-inputs{display:flex;flex-direction:column;gap:10px}
+.bet-inputs-row{display:flex;align-items:center;justify-content:center;gap:10px}
+.stepper{display:flex;align-items:center;gap:6px}
 .step-btn{
   width:34px;height:34px;border-radius:10px;flex-shrink:0;
   background:rgba(255,255,255,0.9);color:var(--text);font-size:20px;line-height:1;
@@ -568,13 +585,12 @@ a{color:inherit;text-decoration:none}
 .step-val:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
 .vs-sep{font-size:14px;color:var(--muted2);font-weight:700;flex-shrink:0}
 .btn-save-bet{
-  height:40px;padding:0 16px;border-radius:10px;flex-shrink:0;
+  height:42px;width:100%;border-radius:12px;
   background:linear-gradient(135deg,#2563EB,#1d4ed8);color:#fff;
-  font-size:12px;font-weight:700;letter-spacing:0.3px;
+  font-size:13px;font-weight:700;letter-spacing:0.3px;
   transition:all 0.2s ease;
   opacity:0.35;pointer-events:none;
   box-shadow:0 2px 8px rgba(37,99,235,0.2);
-  white-space:nowrap;
 }
 .btn-save-bet.ready{opacity:1;pointer-events:auto;box-shadow:var(--shadow-btn)}
 .btn-save-bet.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}
@@ -1142,13 +1158,13 @@ a{color:inherit;text-decoration:none}
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Criar grupo</div>
-    <input id="cg-name" class="form-field" placeholder="Nome do grupo"/>
-    <select id="cg-type" class="form-field" style="background:#fff;color:var(--text)">
+    <input id="cg-name" class="modal-input" placeholder="Nome do grupo"/>
+    <select id="cg-type" class="modal-input">
       <option value="public">Público</option>
       <option value="invite">Somente convite</option>
       <option value="private">Privado (com senha)</option>
     </select>
-    <input id="cg-pass" class="form-field" placeholder="Senha" style="display:none"/>
+    <input id="cg-pass" class="modal-input" placeholder="Senha" style="display:none"/>
     <button class="btn btn-primary mt-8" onclick="doCreateGroup()">Criar grupo</button>
   </div>
 </div>
@@ -1157,8 +1173,8 @@ a{color:inherit;text-decoration:none}
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Entrar com código</div>
-    <input id="jg-code" class="form-field" placeholder="Código (ex: COPA26)" style="text-transform:uppercase;letter-spacing:2px"/>
-    <input id="jg-pass" class="form-field" placeholder="Senha (se necessário)"/>
+    <input id="jg-code" class="modal-input" placeholder="Código (ex: COPA26)" style="text-transform:uppercase;letter-spacing:2px"/>
+    <input id="jg-pass" class="modal-input" placeholder="Senha (se necessário)"/>
     <button class="btn btn-primary mt-8" onclick="doJoinGroup()">Entrar no grupo</button>
   </div>
 </div>
@@ -1186,7 +1202,7 @@ a{color:inherit;text-decoration:none}
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Editar nome</div>
-    <input id="edit-name-val" class="form-field" placeholder="Seu nome"/>
+    <input id="edit-name-val" class="modal-input" placeholder="Seu nome"/>
     <button class="btn btn-primary mt-8" onclick="saveDisplayName()">Salvar</button>
   </div>
 </div>
@@ -1292,7 +1308,7 @@ a{color:inherit;text-decoration:none}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--accent);flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       <span style="font-size:13px;color:var(--accent);font-weight:600">contato@bolao2026.com</span>
     </div>
-    <textarea id="contato-msg" class="form-field" placeholder="Descreva sua dúvida ou sugestão..." rows="4" style="resize:none;margin-bottom:8px"></textarea>
+    <textarea id="contato-msg" class="modal-input" placeholder="Descreva sua dúvida ou sugestão..." rows="4" style="resize:none;margin-bottom:8px"></textarea>
     <button class="btn btn-primary" onclick="enviarContato()">Enviar mensagem</button>
   </div>
 </div>
@@ -2361,7 +2377,7 @@ function openGroupDetail(gid){
     <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">Chat</div>
     <div style="max-height:160px;overflow-y:auto;margin-bottom:10px">${chatLines||'<div class="text-sm text-muted" style="padding:8px 0">Nenhuma mensagem ainda</div>'}</div>
     <div style="display:flex;gap:8px">
-      <input id="chat-${g.id}" class="form-field" placeholder="Mensagem..." style="margin-bottom:0;flex:1"
+      <input id="chat-${g.id}" class="modal-input" placeholder="Mensagem..." style="margin-bottom:0;flex:1"
         onkeydown="if(event.key==='Enter')sendChat('${g.id}')"/>
       <button class="btn btn-primary" style="width:auto;padding:12px 16px;flex-shrink:0" onclick="sendChat('${g.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
