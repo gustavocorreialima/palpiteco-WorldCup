@@ -118,13 +118,14 @@ a{color:inherit;text-decoration:none}
 }
 @keyframes hsFadeIn{from{opacity:0}to{opacity:1}}
 
-/* imagem: contain para aparecer inteira, sem cortes */
+/* imagem de fundo — protagonista */
 #hero-bg{
   position:absolute;inset:0;
   background-image:url('/hero.jpg');
-  background-size:contain;
+  background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
+  background-color:#111;
   filter:brightness(1.08) contrast(1.05) saturate(1.05);
 }
 
