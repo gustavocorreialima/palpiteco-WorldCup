@@ -57,6 +57,73 @@ export interface WCGroup {
   matches: WCMatch[];
 }
 
+// Frontend-compatible match shape (matches what index.html expects)
+export interface FrontendMatch {
+  id: string;
+  competition: string;
+  competitionLogo: string;
+  round: string;
+  kickoffAt: string;      // ISO "2026-06-11T16:00:00"
+  status: "scheduled" | "live" | "finished";
+  stage: string;
+  groupName: string | null;
+  venue: string;
+  city: string;
+  homeTeam: { id: string; name: string; shortName: string; logoUrl: string; flag: string };
+  awayTeam: { id: string; name: string; shortName: string; logoUrl: string; flag: string };
+  homeScore: number | null;
+  awayScore: number | null;
+  homeScoreHT: null;
+  awayScoreHT: null;
+  h2h: { homeWins: number; draws: number; awayWins: number; homeGoals: number; awayGoals: number };
+}
+
+export function toFrontendMatch(m: WCMatch): FrontendMatch {
+  const kickoffAt = `${m.date}T${m.time}:00`;
+  const mapTeam = (t: WCTeamRef) => ({
+    id:        t.code,
+    name:      t.name,
+    shortName: t.code,
+    logoUrl:   `https://flagcdn.com/w80/${countryCode(t.code)}.png`,
+    flag:      t.flag,
+  });
+  return {
+    id:             m.id,
+    competition:    "Copa do Mundo 2026",
+    competitionLogo:"",
+    round:          m.round,
+    kickoffAt,
+    status:         m.status,
+    stage:          m.stage,
+    groupName:      m.group,
+    venue:          m.venue,
+    city:           m.city,
+    homeTeam:       mapTeam(m.homeTeam),
+    awayTeam:       mapTeam(m.awayTeam),
+    homeScore:      m.homeScore,
+    awayScore:      m.awayScore,
+    homeScoreHT:    null,
+    awayScoreHT:    null,
+    h2h:            { homeWins:0, draws:0, awayWins:0, homeGoals:0, awayGoals:0 },
+  };
+}
+
+// Maps FIFA team code → ISO 3166-1 alpha-2 for flagcdn.com
+function countryCode(code: string): string {
+  const map: Record<string, string> = {
+    ARG:"ar", BRA:"br", FRA:"fr", ENG:"gb-eng", ESP:"es", GER:"de",
+    POR:"pt", NED:"nl", BEL:"be", URU:"uy", MEX:"mx", USA:"us",
+    CAN:"ca", JPN:"jp", KOR:"kr", AUS:"au", MAR:"ma", SEN:"sn",
+    TUR:"tr", PAR:"py", ECU:"ec", GHA:"gh", CRO:"hr", PAN:"pa",
+    SUI:"ch", QAT:"qa", BIH:"ba", SCO:"gb-sct", HAI:"ht", CZE:"cz",
+    RSA:"za", CUW:"cw", CIV:"ci", SWE:"se", TUN:"tn", EGY:"eg",
+    IRN:"ir", NZL:"nz", CPV:"cv", SAU:"sa", IRQ:"iq", NOR:"no",
+    ALG:"dz", AUT:"at", JOR:"jo", POR2:"pt", COD:"cd", UZB:"uz",
+    COL:"co", SRB:"rs", POL:"pl", CHI:"cl", HUN:"hu",
+  };
+  return map[code] ?? "un";
+}
+
 // ─── Typed data ───────────────────────────────────────────────────────────────
 
 const ALL_MATCHES = matchesRaw as WCMatch[];

@@ -1,23 +1,23 @@
 import { FastifyInstance } from "fastify";
-import { getAllMatches } from "../../../services/worldCupStaticService";
+import { getAllMatches, toFrontendMatch } from "../../../services/worldCupStaticService";
 import { matches as localMatches } from "../../../shared/database/seed";
 
 export async function matchRoutes(app: FastifyInstance) {
 
-  // List — Copa 2026 from static data; ?status= filter supported
+  // List all Copa 2026 matches in frontend-compatible shape
   app.get("/", async (req, reply) => {
     const { status } = req.query as { status?: string };
-    const all = getAllMatches();
+    const all = getAllMatches().map(toFrontendMatch);
     return reply.send(status ? all.filter(m => m.status === status) : all);
   });
 
-  // Single match — check static data first, then in-memory bets store
+  // Single match by ID
   app.get("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
-    const wcMatch = getAllMatches().find(m => m.id === id);
-    if (wcMatch) return reply.send(wcMatch);
+    const wc = getAllMatches().find(m => m.id === id);
+    if (wc) return reply.send(toFrontendMatch(wc));
     const local = localMatches.find(m => m.id === id);
-    if (local)   return reply.send(local);
+    if (local) return reply.send(local);
     return reply.status(404).send({ error: "Partida não encontrada." });
   });
 }
