@@ -38,6 +38,66 @@
   --transition: 0.2s ease;
 }
 
+/* ── DARK MODE ── */
+body.dark{
+  --bg:#0F172A;
+  --card:rgba(30,41,59,0.85);
+  --card-solid:#1E293B;
+  --card2:rgba(30,41,59,0.97);
+  --text:#F1F5F9;
+  --muted:#94A3B8;
+  --muted2:#64748B;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.04);
+  --accent-dim:rgba(37,99,235,0.18);
+  --accent-border:rgba(37,99,235,0.35);
+  --teal-dim:rgba(90,168,151,0.18);
+  --danger-dim:rgba(239,68,68,0.18);
+  --success-dim:rgba(34,197,94,0.18);
+  --gold-dim:rgba(245,158,11,0.18);
+  --shadow-card:0 2px 8px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.2);
+}
+body.dark{
+  background:
+    radial-gradient(ellipse at 85% 5%, rgba(37,99,235,0.18) 0%, transparent 40%),
+    radial-gradient(ellipse at 10% 95%, rgba(56,189,248,0.10) 0%, transparent 40%),
+    #0F172A;
+  background-attachment:fixed;
+}
+body.dark .topbar{background:rgba(15,23,42,0.9)}
+body.dark .bottomnav{background:rgba(15,23,42,0.9);border-top-color:rgba(255,255,255,0.06)}
+body.dark .modal{background:rgba(15,23,42,0.97);border-color:rgba(255,255,255,0.08)}
+body.dark .modal-title{color:var(--text)}
+body.dark .modal-input{background:#1E293B;border-color:rgba(255,255,255,0.1);color:var(--text)}
+body.dark .modal-input::placeholder{color:var(--muted2)}
+body.dark .modal-input:focus{border-color:var(--accent);background:#263346}
+body.dark .step-val{background:#1E293B;border-color:rgba(255,255,255,0.1);color:var(--text)}
+body.dark .step-btn{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.1);color:var(--text)}
+body.dark .match-card{border-color:rgba(255,255,255,0.07)}
+body.dark .match-card-head{border-bottom-color:rgba(255,255,255,0.04)}
+body.dark .match-bet-row{background:linear-gradient(135deg,rgba(37,99,235,0.12),rgba(37,99,235,0.06));border-top-color:rgba(37,99,235,0.15)}
+body.dark .date-chip{background:#1E293B;border-color:rgba(255,255,255,0.08);color:var(--muted)}
+body.dark .filter-pill{background:#1E293B;border-color:rgba(255,255,255,0.08);color:var(--muted)}
+body.dark .group-card{border-color:rgba(255,255,255,0.07)}
+body.dark .rank-item{border-bottom-color:rgba(255,255,255,0.04)}
+body.dark .menu-row{border-color:rgba(255,255,255,0.07)}
+body.dark .stat-box{border-color:rgba(255,255,255,0.07)}
+body.dark .question-card{border-color:rgba(255,255,255,0.07)}
+body.dark .question-option{background:#1E293B;border-color:rgba(255,255,255,0.1);color:var(--text)}
+body.dark .question-option:hover{border-color:var(--accent)}
+body.dark .analytics-card{border-color:rgba(255,255,255,0.07)}
+body.dark .profile-hero{border-color:rgba(255,255,255,0.07)}
+body.dark .invite-code-box{background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.3)}
+body.dark .btn-outline{border-color:rgba(255,255,255,0.12);color:var(--muted)}
+body.dark select.modal-input option{background:#1E293B;color:var(--text)}
+body.dark .notif-panel{background:rgba(15,23,42,0.97);border-left-color:rgba(255,255,255,0.07)}
+body.dark .notif-item{border-bottom-color:rgba(255,255,255,0.04)}
+body.dark .notif-item.unread{background:rgba(37,99,235,0.12)}
+body.dark .date-chip.active{background:var(--accent);color:#fff}
+body.dark .filter-pill.active{background:var(--accent);color:#fff}
+body.dark .theme-toggle-row{border-color:rgba(255,255,255,0.07)}
+body.dark .rule-card{border-bottom-color:rgba(255,255,255,0.04)}
+
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
 body{
@@ -905,6 +965,24 @@ select.modal-input{cursor:pointer;appearance:none;
 }
 .question-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .question-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.question-options{display:flex;flex-direction:column;gap:8px}
+.question-options.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.question-option{
+  padding:10px 14px;border-radius:12px;
+  border:1.5px solid var(--border);background:var(--card-solid);
+  font-size:13px;font-weight:600;color:var(--text);
+  cursor:pointer;transition:all 0.15s ease;text-align:left;
+  display:flex;align-items:center;gap:8px;
+}
+.question-option:hover{border-color:var(--accent-border);background:var(--accent-dim);color:var(--accent)}
+.question-option.selected{
+  border-color:var(--accent);background:var(--accent-dim);color:var(--accent);
+}
+.question-option.selected::after{content:'✓';margin-left:auto;font-weight:800}
+.question-option.locked{pointer-events:none;opacity:0.7}
+.question-option.locked.selected{border-color:var(--success);background:var(--success-dim);color:#16a34a}
+.question-option.locked.selected::after{content:'✓';color:#16a34a}
+.question-option .opt-flag{font-size:20px;line-height:1}
 .question-input{
   width:100%;padding:10px 14px;border-radius:var(--radius-sm);
   border:1.5px solid var(--border);background:#fff;
@@ -1165,14 +1243,17 @@ select.modal-input{cursor:pointer;appearance:none;
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Criar grupo</div>
-    <input id="cg-name" class="modal-input" placeholder="Nome do grupo"/>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Configure seu bolão e compartilhe o código com os amigos</div>
+    <label style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:6px">Nome do grupo</label>
+    <input id="cg-name" class="modal-input" placeholder="Ex: Bolão da Firma, Família Silva..."/>
+    <label style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:6px;margin-top:4px">Tipo de acesso</label>
     <select id="cg-type" class="modal-input">
-      <option value="public">Público</option>
-      <option value="invite">Somente convite</option>
-      <option value="private">Privado (com senha)</option>
+      <option value="public">🌐 Público — qualquer um pode entrar</option>
+      <option value="invite">🔗 Somente convite — precisa do código</option>
+      <option value="private">🔒 Privado — código + senha</option>
     </select>
-    <input id="cg-pass" class="modal-input" placeholder="Senha" style="display:none"/>
-    <button class="btn btn-primary mt-8" onclick="doCreateGroup()">Criar grupo</button>
+    <input id="cg-pass" class="modal-input" placeholder="Senha do grupo" style="display:none;margin-top:4px"/>
+    <button id="btn-create-group" class="btn btn-primary mt-8" onclick="doCreateGroup()">Criar grupo</button>
   </div>
 </div>
 
@@ -1804,44 +1885,96 @@ async function saveBet(mid){
 
 /* ── PERGUNTAS BÔNUS ── */
 const QUESTIONS=[
-  {id:'q1',title:'Campeão da Copa 2026',sub:'Qual seleção vai levar o troféu?',pts:20,deadline:'2026-06-10',placeholder:'Ex: Brasil'},
-  {id:'q2',title:'Artilheiro da Copa',sub:'Jogador com mais gols no torneio',pts:15,deadline:'2026-06-10',placeholder:'Ex: Vinicius Jr.'},
-  {id:'q3',title:'Melhor da fase de grupos',sub:'Seleção com melhor campanha nos grupos',pts:10,deadline:'2026-06-27',placeholder:'Ex: França'},
-  {id:'q4',title:'Seleção surpresa',sub:'Time que vai surpreender mais',pts:10,deadline:'2026-06-10',placeholder:'Ex: Marrocos'},
+  {
+    id:'q1',title:'Campeão da Copa 2026',sub:'Qual seleção vai levar o troféu?',pts:20,deadline:'2026-06-10',
+    layout:'grid-2',
+    options:[
+      {val:'Brasil',flag:'🇧🇷'},{val:'Argentina',flag:'🇦🇷'},{val:'França',flag:'🇫🇷'},
+      {val:'Inglaterra',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},{val:'Espanha',flag:'🇪🇸'},{val:'Alemanha',flag:'🇩🇪'},
+      {val:'Portugal',flag:'🇵🇹'},{val:'Outro',flag:'🌍'},
+    ]
+  },
+  {
+    id:'q2',title:'Artilheiro da Copa',sub:'Jogador com mais gols no torneio',pts:15,deadline:'2026-06-10',
+    layout:'grid-2',
+    options:[
+      {val:'Vinicius Jr.',flag:'🇧🇷'},{val:'Mbappé',flag:'🇫🇷'},{val:'Bellingham',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+      {val:'Lautaro Martínez',flag:'🇦🇷'},{val:'Yamal',flag:'🇪🇸'},{val:'Ronaldo',flag:'🇵🇹'},
+      {val:'Kane',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},{val:'Outro',flag:'⚽'},
+    ]
+  },
+  {
+    id:'q3',title:'Melhor fase de grupos',sub:'Seleção com melhor campanha nos grupos',pts:10,deadline:'2026-06-27',
+    layout:'grid-2',
+    options:[
+      {val:'Brasil',flag:'🇧🇷'},{val:'Argentina',flag:'🇦🇷'},{val:'França',flag:'🇫🇷'},
+      {val:'Espanha',flag:'🇪🇸'},{val:'Portugal',flag:'🇵🇹'},{val:'Inglaterra',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+      {val:'Alemanha',flag:'🇩🇪'},{val:'Outro',flag:'🌍'},
+    ]
+  },
+  {
+    id:'q4',title:'Seleção surpresa da Copa',sub:'Time que vai surpreender mais',pts:10,deadline:'2026-06-10',
+    layout:'grid-2',
+    options:[
+      {val:'Marrocos',flag:'🇲🇦'},{val:'Japão',flag:'🇯🇵'},{val:'EUA',flag:'🇺🇸'},
+      {val:'Canadá',flag:'🇨🇦'},{val:'Coreia do Sul',flag:'🇰🇷'},{val:'Austrália',flag:'🇦🇺'},
+      {val:'Turquia',flag:'🇹🇷'},{val:'Outro',flag:'🌍'},
+    ]
+  },
+  {
+    id:'q5',title:'Quem chega à final?',sub:'Escolha os dois finalistas',pts:15,deadline:'2026-07-14',
+    layout:'grid-2',
+    options:[
+      {val:'Brasil',flag:'🇧🇷'},{val:'Argentina',flag:'🇦🇷'},{val:'França',flag:'🇫🇷'},
+      {val:'Inglaterra',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},{val:'Espanha',flag:'🇪🇸'},{val:'Portugal',flag:'🇵🇹'},
+      {val:'Alemanha',flag:'🇩🇪'},{val:'Outro',flag:'🌍'},
+    ]
+  },
 ];
 function renderPerguntas(){
   const c=q('#perguntas-body');
   if(!c)return;
   c.innerHTML=`
-    <div style="margin-bottom:14px">
-      <div style="font-size:13px;color:var(--muted)">Responda antes do prazo e ganhe pontos extras no ranking</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--muted);line-height:1.5">Escolha sua resposta antes do prazo e ganhe pontos bônus no ranking 🎯</div>
     </div>
     ${QUESTIONS.map(q2=>{
       const saved=localStorage.getItem('q_'+q2.id)||'';
-      const deadline=new Date(q2.deadline);
+      const deadline=new Date(q2.deadline+'T23:59:00');
       const expired=Date.now()>deadline.getTime();
+      const daysLeft=Math.max(0,Math.ceil((deadline.getTime()-Date.now())/86400000));
+      const deadlineLabel=expired
+        ?'<span style="font-size:10px;color:var(--danger);font-weight:600">Prazo encerrado</span>'
+        :`<span style="font-size:10px;color:var(--muted2)">${daysLeft===0?'Último dia!':daysLeft===1?'Amanhã encerra':`${daysLeft} dias restantes`}</span>`;
+      const opts=q2.options.map(o=>{
+        const isSel=saved===o.val;
+        const cls='question-option'+(isSel?' selected':'')+(expired?' locked':'');
+        const onclick=expired?'':` onclick="saveQuestion('${q2.id}','${o.val.replace(/'/g,"\\'")}')"`;
+        return `<button class="${cls}"${onclick}>
+          <span class="opt-flag">${o.flag}</span>
+          <span>${o.val}</span>
+        </button>`;
+      }).join('');
       return`<div class="question-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
           <div class="question-title">${q2.title}</div>
-          <span class="badge badge-gold" style="font-size:10px">+${q2.pts}pts</span>
+          <span class="badge badge-gold" style="font-size:10px;flex-shrink:0">+${q2.pts}pts</span>
         </div>
-        <div class="question-sub">${q2.sub}</div>
-        ${expired
-          ?(saved?`<div style="padding:10px 14px;background:var(--success-dim);border:1px solid rgba(34,197,94,0.2);border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:#16a34a">${saved}</div>`
-            :`<div style="font-size:12px;color:var(--muted2);font-style:italic">Prazo encerrado</div>`)
-          :`<div style="display:flex;gap:8px">
-              <input class="question-input flex-1" id="${q2.id}-inp" placeholder="${q2.placeholder}" value="${saved}"/>
-              <button class="btn btn-primary" style="width:auto;padding:10px 14px;font-size:12px;flex-shrink:0" onclick="saveQuestion('${q2.id}')">Salvar</button>
-            </div>
-            <div class="text-xs text-muted mt-4">Prazo: ${deadline.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>`}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="question-sub" style="margin-bottom:0">${q2.sub}</div>
+          ${deadlineLabel}
+        </div>
+        <div class="question-options ${q2.layout||''}">${opts}</div>
+        ${saved&&!expired?`<div style="margin-top:10px;font-size:12px;color:var(--success);font-weight:600;display:flex;align-items:center;gap:4px">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+          Resposta salva — clique em outra para alterar
+        </div>`:''}
       </div>`;
     }).join('')}`;
 }
-function saveQuestion(id){
-  const val=q('#'+id+'-inp')?.value.trim();
-  if(!val)return;
+function saveQuestion(id,val){
   localStorage.setItem('q_'+id,val);
-  toast('Resposta salva!');
+  toast('✓ Resposta salva!');
   renderPerguntas();
 }
 function showKnockoutInfo(){
@@ -2192,10 +2325,15 @@ function renderMenu(){
     <div class="menu-list">
       <div class="theme-toggle-row">
         <div style="display:flex;align-items:center;gap:12px">
-          <div class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
-          <span style="font-size:14px;font-weight:500;color:var(--text)">Tema Claro</span>
+          <div class="menu-icon" style="${isDark?'background:rgba(148,163,184,0.15)':''}">
+            ${isDark
+              ?`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted)"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+              :`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+            }
+          </div>
+          <span style="font-size:14px;font-weight:500;color:var(--text)">${isDark?'Tema Escuro':'Tema Claro'}</span>
         </div>
-        <button class="toggle${isDark?'':' on'}" id="theme-toggle" onclick="toggleTheme()"><div class="toggle-knob"></div></button>
+        <button class="toggle${isDark?' on':''}" id="theme-toggle" onclick="toggleTheme()"><div class="toggle-knob"></div></button>
       </div>
     </div>
   </div>
@@ -2248,9 +2386,10 @@ function renderMenu(){
 }
 
 function toggleTheme(){
-  document.body.classList.toggle('dark');
-  localStorage.setItem('theme', document.body.classList.contains('dark')?'dark':'light');
+  const isDark=document.body.classList.toggle('dark');
+  localStorage.setItem('theme',isDark?'dark':'light');
   renderMenu();
+  toast(isDark?'Tema escuro ativado 🌙':'Tema claro ativado ☀️');
 }
 function setIdioma(lang){
   if(lang!=='pt'){toast('Em breve disponível');return;}
@@ -2404,13 +2543,16 @@ function openGroupDetail(gid){
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
-    ${isAdmin?`<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Administração</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:12px" onclick="toast('Novo código gerado')">Novo código</button>
-        <button class="btn btn-danger" style="width:auto;padding:8px 14px;font-size:12px" onclick="if(confirm('Encerrar grupo?')){toast('Grupo encerrado');closeModal('detail')}">Encerrar grupo</button>
-      </div>
-    </div>`:''}`;
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+      ${isAdmin
+        ?`<button class="btn btn-outline" style="width:auto;padding:9px 14px;font-size:12px;flex:1" onclick="regenGroupCode('${g.id}')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.2"/></svg>
+            Novo código
+          </button>
+          <button class="btn btn-danger" style="width:auto;padding:9px 14px;font-size:12px;flex:1" onclick="deleteGroup('${g.id}')">Encerrar grupo</button>`
+        :`<button class="btn btn-outline" style="width:auto;padding:9px 14px;font-size:12px;width:100%;color:var(--danger);border-color:rgba(239,68,68,0.3)" onclick="leaveGroup('${g.id}')">Sair do grupo</button>`
+      }
+    </div>`;
   openModal('detail');
 }
 
@@ -2423,17 +2565,51 @@ async function sendChat(gid){
   const groups=await api('GET','/clubs');
   if(Array.isArray(groups)){S.groups=groups;openGroupDetail(gid)}
 }
+async function leaveGroup(gid){
+  if(!confirm('Sair do grupo? Você poderá entrar novamente com o código.'))return;
+  const d=await api('POST',`/clubs/${gid}/leave`);
+  if(d.error)return toast('Erro ao sair do grupo.');
+  S.groups=S.groups.filter(g=>g.id!==gid);
+  closeModal('detail');
+  renderGrupos();
+  toast('Você saiu do grupo.');
+}
+async function deleteGroup(gid){
+  if(!confirm('Encerrar o grupo permanentemente? Esta ação não pode ser desfeita.'))return;
+  const d=await api('DELETE',`/clubs/${gid}`);
+  if(d.error)return toast('Erro ao encerrar grupo.');
+  S.groups=S.groups.filter(g=>g.id!==gid);
+  closeModal('detail');
+  renderGrupos();
+  toast('Grupo encerrado.');
+}
+async function regenGroupCode(gid){
+  const d=await api('POST',`/clubs/${gid}/regen-code`);
+  if(d.error)return toast('Erro ao gerar novo código.');
+  const g=S.groups.find(g=>g.id===gid);
+  if(g&&d.inviteCode){g.inviteCode=d.inviteCode;openGroupDetail(gid)}
+  toast('Novo código gerado!');
+}
 async function doCreateGroup(){
   const name=q('#cg-name').value.trim();
   const type=q('#cg-type').value;
   const password=q('#cg-pass').value;
   if(!name)return toast('Dê um nome para o grupo primeiro');
+  if(type==='private'&&!password)return toast('Digite uma senha para o grupo privado');
+  const btn=q('#btn-create-group');
+  if(btn){btn.textContent='Criando...';btn.style.opacity='0.7';btn.style.pointerEvents='none'}
   const d=await api('POST','/clubs',{name,type,password});
+  if(btn){btn.textContent='Criar grupo';btn.style.opacity='';btn.style.pointerEvents=''}
   if(d.error)return toast('Erro ao criar grupo. Tente novamente.');
+  // Limpar campos
+  const nameEl=q('#cg-name');const passEl=q('#cg-pass');
+  if(nameEl)nameEl.value='';if(passEl)passEl.value='';
   S.groups.push(d);
   closeModal('create');
-  toast('Grupo criado! Convide seus amigos.');
+  toast('✓ Grupo criado! Compartilhe o código com seus amigos.');
   goPage('grupos');
+  // Abrir o detalhe do grupo recém-criado
+  setTimeout(()=>openGroupDetail(d.id),300);
 }
 async function doJoinGroup(){
   const inviteCode=q('#jg-code').value.trim().toUpperCase();
