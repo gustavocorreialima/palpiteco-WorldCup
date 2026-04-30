@@ -601,19 +601,17 @@ select.modal-input{cursor:pointer;appearance:none;
   padding-bottom:4px;scrollbar-width:none;
 }
 .date-strip::-webkit-scrollbar{display:none}
-.date-chip{
-  flex-shrink:0;padding:7px 14px;border-radius:20px;
-  border:1.5px solid var(--border);background:#fff;
-  font-size:12px;font-weight:600;color:var(--muted);
-  cursor:pointer;transition:var(--transition);white-space:nowrap;
-}
-.date-chip:hover{border-color:var(--accent-border);color:var(--accent)}
-.date-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .date-label{
   font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;
   letter-spacing:0.8px;padding:4px 0 10px;display:flex;align-items:center;gap:8px;
 }
 .date-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.month-label{
+  font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;
+  letter-spacing:1px;padding:12px 0 6px;display:flex;align-items:center;gap:8px;
+  margin-top:4px;
+}
+.month-label::after{content:'';flex:1;height:2px;background:var(--accent-border);border-radius:2px}
 
 /* ── BRACKET ── */
 .bracket-scroll{overflow-x:auto;padding-bottom:16px}
@@ -821,19 +819,28 @@ select.modal-input{cursor:pointer;appearance:none;
 .date-strip::-webkit-scrollbar{display:none}
 .date-chip{
   flex-shrink:0;display:flex;flex-direction:column;align-items:center;
-  padding:8px 14px;border-radius:20px;min-width:52px;
+  padding:8px 12px;border-radius:16px;min-width:52px;
   border:1.5px solid var(--border);background:#fff;
   font-size:11px;font-weight:600;color:var(--muted);
   cursor:pointer;transition:var(--transition);
 }
 .date-chip .dc-day{font-size:10px;text-transform:uppercase;letter-spacing:0.5px}
-.date-chip .dc-num{font-size:16px;font-weight:800;line-height:1.1;margin:1px 0}
-.date-chip .dc-dot{width:5px;height:5px;border-radius:50%;background:var(--muted2);margin-top:2px}
+.date-chip .dc-num{font-size:17px;font-weight:800;line-height:1.1;margin:1px 0}
+.date-chip .dc-mon{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;opacity:0.8}
+.date-chip .dc-dot{width:5px;height:5px;border-radius:50%;background:var(--muted2);margin-top:3px}
 .date-chip:hover{border-color:var(--accent-border);color:var(--accent)}
 .date-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .date-chip.active .dc-dot{background:rgba(255,255,255,0.7)}
 .date-chip.has-games .dc-dot{background:var(--teal)}
 .date-chip.active.has-games .dc-dot{background:rgba(255,255,255,0.9)}
+.month-divider{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:0 6px;
+  font-size:11px;font-weight:800;color:var(--accent);
+  text-transform:uppercase;letter-spacing:1px;
+  border-left:2px solid var(--accent-border);
+  margin:0 4px;height:52px;
+}
 .filter-row{display:flex;gap:6px;margin-bottom:16px}
 .filter-pill{
   padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;
@@ -1568,41 +1575,43 @@ function renderPalpites(){
   if(!c)return;
   if(!S.matches.length){c.innerHTML=skeletonCards(4);return}
 
-  // Agrupar datas únicas com jogos
-  const allDates=[...new Set(S.matches.map(m=>{
-    const d=new Date(m.kickoffAt);
-    return d.toISOString().split('T')[0];
-  }))].sort();
-
-  if(!PS.selectedDate||!allDates.includes(PS.selectedDate)){
-    PS.selectedDate=allDates[0]||null;
-  }
-
   const weekDays=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const monthsFull=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
+  // Datas únicas ordenadas
+  const allDates=[...new Set(S.matches.map(m=>m.kickoffAt.slice(0,10)))].sort();
+
+  // Iniciar na data mais próxima com jogo a partir de hoje
+  if(!PS.selectedDate||!allDates.includes(PS.selectedDate)){
+    const today=new Date().toISOString().slice(0,10);
+    PS.selectedDate=allDates.find(d=>d>=today)||allDates[allDates.length-1]||null;
+  }
+
+  // Chips com mês visível + separador quando muda de mês
+  let lastChipMonth=-1;
   const dateChips=allDates.map(d=>{
     const dt=new Date(d+'T12:00:00');
+    const mon=dt.getMonth();
     const active=d===PS.selectedDate?' active':'';
-    const hasGames=' has-games';
-    return `<div class="date-chip${active}${hasGames}" onclick="selectPalpiteDate('${d}')">
+    let divider='';
+    if(mon!==lastChipMonth){
+      if(lastChipMonth!==-1)divider=`<div class="month-divider">${months[mon]}</div>`;
+      lastChipMonth=mon;
+    }
+    return divider+`<div class="date-chip has-games${active}" onclick="selectPalpiteDate('${d}')">
       <span class="dc-day">${weekDays[dt.getDay()]}</span>
       <span class="dc-num">${dt.getDate()}</span>
+      <span class="dc-mon">${months[mon]}</span>
       <span class="dc-dot"></span>
     </div>`;
   }).join('');
 
-  let matchesFiltered=S.matches.filter(m=>{
-    if(!PS.selectedDate)return true;
-    return m.kickoffAt.startsWith(PS.selectedDate);
-  });
+  let matchesFiltered=S.matches.filter(m=>m.kickoffAt.startsWith(PS.selectedDate||''));
 
   if(PS.filter==='proximos'){
-    matchesFiltered=matchesFiltered.filter(m=>m.status!=='finished');
-    if(!matchesFiltered.length){
-      // Se não há próximos nessa data, mostrar todos da data
-      matchesFiltered=S.matches.filter(m=>m.kickoffAt.startsWith(PS.selectedDate||''));
-    }
+    const upcoming=matchesFiltered.filter(m=>m.status!=='finished');
+    matchesFiltered=upcoming.length?upcoming:matchesFiltered;
   } else {
     matchesFiltered=matchesFiltered.filter(m=>m.status==='finished');
   }
@@ -1610,13 +1619,26 @@ function renderPalpites(){
   const order={live:0,scheduled:1,finished:2};
   matchesFiltered.sort((a,b)=>order[a.status]-order[b.status]||new Date(a.kickoffAt)-new Date(b.kickoffAt));
 
+  // Título da data selecionada
+  const selDt=PS.selectedDate?new Date(PS.selectedDate+'T12:00:00'):null;
+  const selLabel=selDt
+    ?`${weekDays[selDt.getDay()]}, ${selDt.getDate()} de ${monthsFull[selDt.getMonth()]} de ${selDt.getFullYear()}`
+    :'';
+
   let html=`<div class="date-strip-wrap">
-    <div class="date-strip">${dateChips}</div>
+    <div class="date-strip" id="date-strip-el">${dateChips}</div>
   </div>
   <div class="filter-row">
     <div class="filter-pill${PS.filter==='proximos'?' active':''}" onclick="setPalpiteFilter('proximos')">Próximos</div>
     <div class="filter-pill${PS.filter==='finalizados'?' active':''}" onclick="setPalpiteFilter('finalizados')">Finalizados</div>
   </div>`;
+
+  if(selLabel){
+    html+=`<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color:var(--accent);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      ${selLabel}
+    </div>`;
+  }
 
   if(!matchesFiltered.length){
     html+=`<div class="empty">
@@ -1627,18 +1649,17 @@ function renderPalpites(){
       <div class="empty-sub">Selecione outra data ou aguarde a tabela ser divulgada</div>
     </div>`;
   } else {
-    let lastDate='';
     matchesFiltered.forEach((m,i)=>{
-      const d=fmtDate(m.kickoffAt);
-      if(d!==lastDate){
-        const cnt=matchesFiltered.filter(x=>fmtDate(x.kickoffAt)===d).length;
-        html+=`<div class="date-label">${d} <span class="badge badge-muted" style="font-size:10px;margin-left:4px">${cnt} jogo${cnt>1?'s':''}</span></div>`;
-        lastDate=d;
-      }
       html+=matchCardWithDelay(m,i);
     });
   }
   c.innerHTML=html;
+  // Scroll automático para o chip ativo ficar visível
+  requestAnimationFrame(()=>{
+    const strip=q('#date-strip-el');
+    const active=strip?.querySelector('.date-chip.active');
+    if(active&&strip)strip.scrollLeft=active.offsetLeft-strip.clientWidth/2+active.clientWidth/2;
+  });
 }
 
 function selectPalpiteDate(d){
@@ -2446,7 +2467,7 @@ function toast(msg){
 /* ── UTILS ── */
 function q(sel){return document.querySelector(sel)}
 function setInner(id,html){const el=q('#'+id);if(el)el.innerHTML=html}
-function fmtDate(iso){return new Date(iso).toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})}
+function fmtDate(iso){return new Date(iso).toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'long',year:'numeric'})}
 function fmtTime(iso){return new Date(iso).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function relTime(iso){
   const d=Date.now()-new Date(iso).getTime();
