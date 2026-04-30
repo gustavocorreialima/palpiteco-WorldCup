@@ -106,128 +106,125 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(37,99,235,0.15);
 }
 
-/* ── SPLASH / AUTH ── */
-#splash-screen{
+/* ══════════════════════════════════════
+   SPLASH + AUTH — PREMIUM HERO SCREEN
+══════════════════════════════════════ */
+
+/* ── base screens ── */
+#splash-screen,#auth-screen{
   position:fixed;inset:0;z-index:110;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   overflow:hidden;
-  animation:splashFadeIn 0.5s ease both;
 }
-@keyframes splashFadeIn{from{opacity:0}to{opacity:1}}
+#splash-screen{animation:heroFadeIn 0.6s ease both}
+#auth-screen{display:none}
+@keyframes heroFadeIn{from{opacity:0}to{opacity:1}}
 
-/* Imagem de fundo — usa <img> posicionada absolute para object-fit */
-#splash-img{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;object-position:center center;
-  filter:brightness(1.08) contrast(1.08) saturate(1.05);
-  animation:cinematicZoom 12s ease-in-out infinite alternate;
+/* ── hero image wrapper (zoom animation) ── */
+#splash-imgwrap,#auth-imgwrap{
+  position:absolute;inset:-5%;
+  animation:zoomHero 12s ease-in-out infinite alternate;
   transform-origin:center;
+  will-change:transform;
 }
-@keyframes cinematicZoom{from{transform:scale(1.04)}to{transform:scale(1.08)}}
+@keyframes zoomHero{from{transform:scale(1.00)}to{transform:scale(1.05)}}
 
-/* Fallback quando sem imagem real */
-#splash-bg{
+/* ── hero image ── */
+#splash-img,#auth-img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;object-position:center center;
+  filter:brightness(1.15) contrast(1.08) saturate(1.05);
+  will-change:transform;
+  transition:transform 0.1s linear;
+}
+
+/* ── fallback gradient (shown when no hero.jpg) ── */
+#splash-bg,#auth-bg{
   position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 50% 35%, rgba(212,160,10,0.45) 0%, transparent 50%),
-    radial-gradient(ellipse at 20% 80%, rgba(37,99,235,0.35) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 60%, rgba(90,168,151,0.3) 0%, transparent 45%),
-    linear-gradient(160deg,#071a07 0%,#0d1f2d 60%,#0a1a0a 100%);
-  display:var(--splash-bg-display,block);
+    radial-gradient(ellipse at 50% 30%, rgba(212,160,10,0.50) 0%, transparent 52%),
+    radial-gradient(ellipse at 20% 85%, rgba(37,99,235,0.30) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 65%, rgba(90,168,151,0.25) 0%, transparent 45%),
+    linear-gradient(160deg,#071a07 0%,#0d1f2d 55%,#0a1a0a 100%);
 }
 
-/* Overlay cinematográfico — topo claro, rodapé escuro */
-#splash-overlay{
-  position:absolute;inset:0;
+/* ── overlay: super leve, só para o rodapé ── */
+#splash-overlay,#auth-overlay{
+  position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(
     to bottom,
-    rgba(0,0,0,0.10) 0%,
-    rgba(0,0,0,0.25) 45%,
-    rgba(0,0,0,0.70) 100%
+    rgba(0,0,0,0.05)  0%,
+    rgba(0,0,0,0.15) 50%,
+    rgba(0,0,0,0.35) 100%
   );
-  pointer-events:none;
 }
 
-/* Card glassmorphism na parte inferior */
-#splash-content{
+/* ── luz suave sobre troféu (efeito premium) ── */
+#splash-light,#auth-light{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12), transparent 60%);
+}
+
+/* ── card inferior glass ── */
+#splash-content,.auth-card{
   position:relative;z-index:2;
   width:100%;max-width:480px;
   padding:28px 28px 52px;
   text-align:center;
   background:rgba(0,0,0,0.35);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,0.18);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.15);
   border-radius:28px 28px 0 0;
-  animation:splashSlideUp 0.7s 0.2s ease both;
 }
-@keyframes splashSlideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+#splash-content{animation:heroSlideUp 0.7s 0.25s ease both}
+.auth-card{animation:heroSlideUp 0.5s ease both;max-width:420px;padding:28px 24px 48px}
+@keyframes heroSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── títulos ── */
 #splash-content h1{
   font-size:34px;font-weight:800;color:#fff;
   letter-spacing:-0.5px;line-height:1.15;margin-bottom:10px;
-  text-shadow:0 2px 12px rgba(0,0,0,0.5);
+  text-shadow:0 2px 10px rgba(0,0,0,0.5);
 }
 #splash-content p{
-  font-size:16px;color:rgba(255,255,255,0.85);
+  font-size:16px;color:rgba(255,255,255,0.88);
   margin-bottom:32px;line-height:1.5;
   text-shadow:0 1px 6px rgba(0,0,0,0.4);
 }
+.auth-header{text-align:center;margin-bottom:24px}
+.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 10px rgba(0,0,0,0.5)}
+.auth-header p{font-size:13px;color:rgba(255,255,255,0.80);margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,0.35)}
+
+/* ── botão Começar ── */
 .btn-splash{
   position:relative;overflow:hidden;
   width:100%;height:56px;border-radius:18px;
   background:linear-gradient(135deg,#2563EB,#3B82F6);
   color:#fff;font-size:17px;font-weight:700;
   border:none;cursor:pointer;
-  box-shadow:0 12px 30px rgba(37,99,235,0.35);
+  box-shadow:0 10px 30px rgba(37,99,235,0.35);
   transition:transform 0.15s ease,box-shadow 0.15s ease;
   display:flex;align-items:center;justify-content:center;gap:8px;
+  animation:btnPulse 3s 1.5s ease-in-out infinite;
+}
+@keyframes btnPulse{
+  0%,100%{box-shadow:0 10px 30px rgba(37,99,235,0.35)}
+  50%{box-shadow:0 10px 40px rgba(37,99,235,0.55)}
 }
 .btn-splash::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%);
-  background-size:200% 100%;background-position:200% 0;
-  animation:btnShine 3s 1.2s ease infinite;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.20) 50%,transparent 62%);
+  background-size:250% 100%;background-position:250% 0;
+  animation:btnShine 3.5s 1.8s ease infinite;
 }
 @keyframes btnShine{
-  0%{background-position:200% 0}
-  40%{background-position:-100% 0}
+  0%{background-position:250% 0}
+  45%{background-position:-100% 0}
   100%{background-position:-100% 0}
 }
-.btn-splash:hover{box-shadow:0 16px 36px rgba(37,99,235,0.50)}
-.btn-splash:active{transform:scale(0.98);box-shadow:0 6px 18px rgba(37,99,235,0.35)}
-
-#auth-screen{
-  position:fixed;inset:0;z-index:100;
-  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
-  overflow:hidden;
-}
-#auth-bg{
-  position:absolute;inset:0;
-  background-color:#071810;
-}
-#auth-img{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;object-position:center center;
-  filter:brightness(1.15) contrast(1.05) saturate(1.05);
-}
-#auth-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.05),rgba(0,0,0,0.15));
-}
-.auth-card{
-  position:relative;z-index:2;
-  width:100%;max-width:420px;
-  background:rgba(0,0,0,0.45);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:24px 24px 0 0;
-  padding:28px 24px 48px;
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  animation:slideUpFade 0.35s ease both;
-}
-.auth-header{text-align:center;margin-bottom:24px}
-.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.4)}
-.auth-header p{font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.btn-splash:active{transform:scale(0.96);box-shadow:0 4px 16px rgba(37,99,235,0.30);animation:none}
+.btn-splash:hover:not(:active){box-shadow:0 14px 38px rgba(37,99,235,0.50)}
 
 .auth-social-btn{
   width:100%;height:50px;border-radius:14px;
@@ -923,12 +920,13 @@ a{color:inherit;text-decoration:none}
 
 <!-- ════════ SPLASH ════════ -->
 <div id="splash-screen">
-  <img id="splash-img" src="/hero.jpg" alt="" onerror="this.style.display='none'">
   <div id="splash-bg"></div>
+  <div id="splash-imgwrap"><img id="splash-img" src="/hero.jpg" alt="" onerror="this.style.display='none'"></div>
   <div id="splash-overlay"></div>
+  <div id="splash-light"></div>
   <div id="splash-content">
-    <h1>Bolão 2026</h1>
-    <p>Palpites da Copa do Mundo com seus amigos</p>
+    <h1>Bolão de Futebol 2026</h1>
+    <p>O app de bolão mais divertido entre amigos</p>
     <button class="btn-splash" onclick="showAuth()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
       Começar
@@ -939,8 +937,9 @@ a{color:inherit;text-decoration:none}
 <!-- ════════ AUTH ════════ -->
 <div id="auth-screen">
   <div id="auth-bg"></div>
-  <img id="auth-img" src="/hero.jpg" alt="" onerror="this.style.display='none'">
+  <div id="auth-imgwrap"><img id="auth-img" src="/hero.jpg" alt="" onerror="this.style.display='none'"></div>
   <div id="auth-overlay"></div>
+  <div id="auth-light"></div>
   <div class="auth-card">
     <div class="auth-header">
       <h1>Bolão 2026</h1>
@@ -1421,6 +1420,32 @@ async function doLogout(){
   splash.style.transition='opacity 0.4s ease';
   requestAnimationFrame(()=>{splash.style.opacity='1'});
 }
+
+/* ── PARALLAX HERO ── */
+(function(){
+  let ticking=false;
+  function applyParallax(nx,ny){
+    const dx=(nx-0.5)*3;  // ±1.5% horizontal
+    const dy=(ny-0.5)*2;  // ±1% vertical
+    const t=`translate(${dx}%,${dy}%)`;
+    const sw=document.getElementById('splash-imgwrap');
+    const aw=document.getElementById('auth-imgwrap');
+    if(sw) sw.style.transform=t;
+    if(aw) aw.style.transform=t;
+  }
+  function onMove(nx,ny){
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(()=>{ applyParallax(nx,ny); ticking=false; });
+  }
+  document.addEventListener('mousemove',e=>{
+    onMove(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!e.touches[0])return;
+    onMove(e.touches[0].clientX/window.innerWidth, e.touches[0].clientY/window.innerHeight);
+  },{passive:true});
+})();
 
 /* ── BOOT ── */
 async function initApp(){
