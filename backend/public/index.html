@@ -204,34 +204,30 @@ a{color:inherit;text-decoration:none}
 }
 #auth-bg{
   position:absolute;inset:0;
-  background-image:var(--hero-img, none);
-  background-size:cover;background-position:center top;
-  background-color:#0d1f0d;
-  filter:blur(6px);transform:scale(1.08);
+  background-color:#071810;
 }
-#auth-bg::after{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse at 60% 30%, rgba(37,99,235,0.35) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(90,168,151,0.3) 0%, transparent 50%);
+#auth-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center center;
+  filter:brightness(1.15) contrast(1.05) saturate(1.05);
 }
 #auth-overlay{
   position:absolute;inset:0;
-  background:rgba(0,0,0,0.65);
+  background:linear-gradient(to bottom,rgba(0,0,0,0.05),rgba(0,0,0,0.15));
 }
 .auth-card{
   position:relative;z-index:2;
   width:100%;max-width:420px;
-  background:rgba(255,255,255,0.09);
-  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(0,0,0,0.45);
+  border:1px solid rgba(255,255,255,0.18);
   border-radius:24px 24px 0 0;
   padding:28px 24px 48px;
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   animation:slideUpFade 0.35s ease both;
 }
 .auth-header{text-align:center;margin-bottom:24px}
-.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-.auth-header p{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px}
+.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.4)}
+.auth-header p{font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
 
 .auth-social-btn{
   width:100%;height:50px;border-radius:14px;
@@ -241,8 +237,8 @@ a{color:inherit;text-decoration:none}
 }
 .auth-social-btn:hover{transform:scale(1.02)}
 .auth-social-btn:active{transform:scale(0.97)}
-.auth-btn-google{background:#fff;color:#1f2937}
-.auth-btn-apple{background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15)}
+.auth-btn-google{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);backdrop-filter:blur(10px)}
+.auth-btn-apple{background:rgba(255,255,255,0.10);color:#fff;border:1px solid rgba(255,255,255,0.20);backdrop-filter:blur(10px)}
 
 .auth-divider{
   display:flex;align-items:center;gap:12px;
@@ -943,6 +939,7 @@ a{color:inherit;text-decoration:none}
 <!-- ════════ AUTH ════════ -->
 <div id="auth-screen">
   <div id="auth-bg"></div>
+  <img id="auth-img" src="/hero.jpg" alt="" onerror="this.style.display='none'">
   <div id="auth-overlay"></div>
   <div class="auth-card">
     <div class="auth-header">
