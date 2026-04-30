@@ -1,82 +1,68 @@
 import { FastifyInstance } from "fastify";
 import {
-  getAllMatches,
-  getUpcomingMatches,
-  getPastMatches,
-  getLiveMatches,
-  getTeams,
-  getGroups,
-  getBracket,
-  checkApiStatus,
-} from "../../../services/worldCupService";
+  getAllMatches, getMatchesByDate, getUpcomingMatches, getFinishedMatches,
+  getMatchesByGroup, getKnockoutMatches, getBracket,
+  getTeams, getTeamsByGroup, getGroups, getNextMatches, getMatchDates,
+} from "../../../services/worldCupStaticService";
+import { getLiveMatches } from "../../../services/liveScoreService";
 
 export async function worldCupRoutes(app: FastifyInstance) {
 
-  // Groups / standings
-  app.get("/groups", async (_req, reply) => {
-    try {
-      return reply.send(await getGroups());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar os grupos agora." });
-    }
+  // All 104 matches
+  app.get("/matches", async (_req, reply) => reply.send(getAllMatches()));
+
+  // Upcoming matches — optional ?n=20
+  app.get("/matches/upcoming", async (req, reply) => {
+    const { n } = req.query as { n?: string };
+    return reply.send(getNextMatches(n ? Number(n) : 10));
   });
 
-  // All fixtures
-  app.get("/matches", async (_req, reply) => {
-    try {
-      return reply.send(await getAllMatches());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar os jogos agora." });
-    }
+  // Finished matches
+  app.get("/matches/finished", async (_req, reply) => reply.send(getFinishedMatches()));
+
+  // Live — placeholder, returns [] until liveScoreService is wired
+  app.get("/matches/live", async (_req, reply) => reply.send(await getLiveMatches()));
+
+  // By date — ?date=2026-06-11
+  app.get("/matches/by-date", async (req, reply) => {
+    const { date } = req.query as { date?: string };
+    if (!date) return reply.status(400).send({ error: "Parâmetro ?date=YYYY-MM-DD obrigatório." });
+    return reply.send(getMatchesByDate(date));
   });
 
-  // Upcoming fixtures
-  app.get("/matches/upcoming", async (_req, reply) => {
-    try {
-      return reply.send(await getUpcomingMatches());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar os próximos jogos." });
-    }
+  // All match dates (for calendar strip)
+  app.get("/matches/dates", async (_req, reply) => reply.send(getMatchDates()));
+
+  // Knockout only
+  app.get("/matches/knockout", async (_req, reply) => reply.send(getKnockoutMatches()));
+
+  // Bracket split by stage
+  app.get("/bracket", async (_req, reply) => reply.send(getBracket()));
+
+  // All 48 teams
+  app.get("/teams", async (_req, reply) => reply.send(getTeams()));
+
+  // Teams by group — /teams/group/A
+  app.get("/teams/group/:letter", async (req, reply) => {
+    const { letter } = req.params as { letter: string };
+    return reply.send(getTeamsByGroup(letter));
   });
 
-  // Past fixtures
-  app.get("/matches/past", async (_req, reply) => {
-    try {
-      return reply.send(await getPastMatches());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar os jogos anteriores." });
-    }
+  // All 12 groups with standings
+  app.get("/groups", async (_req, reply) => reply.send(getGroups()));
+
+  // Single group — /groups/A
+  app.get("/groups/:letter", async (req, reply) => {
+    const { letter } = req.params as { letter: string };
+    const groups = getGroups();
+    const group  = groups.find(g => g.letter === letter.toUpperCase());
+    if (!group) return reply.status(404).send({ error: `Grupo ${letter} não encontrado.` });
+    return reply.send(group);
   });
 
-  // Live scores
-  app.get("/matches/live", async (_req, reply) => {
-    try {
-      return reply.send(await getLiveMatches());
-    } catch {
-      return reply.status(503).send({ error: "Placar ao vivo indisponível no momento." });
-    }
-  });
-
-  // National teams
-  app.get("/teams", async (_req, reply) => {
-    try {
-      return reply.send(await getTeams());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar as seleções." });
-    }
-  });
-
-  // Bracket (knockout stages)
-  app.get("/bracket", async (_req, reply) => {
-    try {
-      return reply.send(await getBracket());
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar o mata-mata." });
-    }
-  });
-
-  // Debug / health check (development only)
-  app.get("/status", async (_req, reply) => {
-    return reply.send(await checkApiStatus());
+  // Matches in a group — /groups/A/matches
+  app.get("/groups/:letter/matches", async (req, reply) => {
+    const { letter } = req.params as { letter: string };
+    return reply.send(getMatchesByGroup(letter));
   });
 }

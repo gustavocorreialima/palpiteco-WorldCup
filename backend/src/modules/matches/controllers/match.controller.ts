@@ -1,40 +1,23 @@
 import { FastifyInstance } from "fastify";
-import { getAllMatches } from "../../../services/worldCupService";
+import { getAllMatches } from "../../../services/worldCupStaticService";
 import { matches as localMatches } from "../../../shared/database/seed";
 
 export async function matchRoutes(app: FastifyInstance) {
 
-  // List matches — Copa 2026 from service, other bets from in-memory store
+  // List — Copa 2026 from static data; ?status= filter supported
   app.get("/", async (req, reply) => {
-    const { status, source } = req.query as { status?: string; source?: string };
-
-    // source=local bypasses API (used by bet resolution logic)
-    if (source === "local") {
-      const result = status ? localMatches.filter(m => m.status === status) : localMatches;
-      return reply.send(result);
-    }
-
-    try {
-      const wcMatches = await getAllMatches();
-      const result    = status ? wcMatches.filter(m => m.status === status) : wcMatches;
-      return reply.send(result);
-    } catch {
-      return reply.status(503).send({ error: "Não foi possível carregar os jogos agora." });
-    }
+    const { status } = req.query as { status?: string };
+    const all = getAllMatches();
+    return reply.send(status ? all.filter(m => m.status === status) : all);
   });
 
-  // Single match by ID — check WC matches first, then local store
+  // Single match — check static data first, then in-memory bets store
   app.get("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
-    try {
-      const wcMatches = await getAllMatches();
-      const match     = wcMatches.find(m => m.id === id) ?? localMatches.find(m => m.id === id);
-      if (!match) return reply.status(404).send({ error: "Match not found" });
-      return reply.send(match);
-    } catch {
-      const match = localMatches.find(m => m.id === id);
-      if (!match) return reply.status(404).send({ error: "Match not found" });
-      return reply.send(match);
-    }
+    const wcMatch = getAllMatches().find(m => m.id === id);
+    if (wcMatch) return reply.send(wcMatch);
+    const local = localMatches.find(m => m.id === id);
+    if (local)   return reply.send(local);
+    return reply.status(404).send({ error: "Partida não encontrada." });
   });
 }
