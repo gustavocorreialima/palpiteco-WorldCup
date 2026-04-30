@@ -1186,6 +1186,7 @@ select.modal-input{cursor:pointer;appearance:none;
       </div>
       <div class="tabs" id="ranking-tabs">
         <div class="tab active" onclick="setRankingTab('geral')">Geral</div>
+        <div class="tab" onclick="setRankingTab('grupos')">Grupos</div>
         <div class="tab" onclick="setRankingTab('equipes')">Equipes</div>
         <div class="tab" onclick="setRankingTab('perguntas')">Perguntas</div>
       </div>
@@ -1432,6 +1433,7 @@ const S={
   bracketTab:'fases',
   rankingTab:'geral',
   notifOpen:false,
+  _rankGroupSel:null,
 };
 
 /* ── API ── */
@@ -1460,6 +1462,8 @@ async function doLogin(){
   if(!email||!password)return setAuthErr('Preencha todos os campos');
   const d=await api('POST','/auth/login',{email,password});
   if(d.error)return setAuthErr(d.error);
+  localStorage.setItem('savedCreds',JSON.stringify({email,password}));
+  localStorage.setItem('savedUser',JSON.stringify(d.user));
   onAuth(d.token,d.user);
 }
 async function doRegister(){
@@ -1470,6 +1474,8 @@ async function doRegister(){
   if(!displayName||!username||!email||!password)return setAuthErr('Preencha todos os campos');
   const d=await api('POST','/auth/register',{displayName,username,email,password});
   if(d.error)return setAuthErr(d.error);
+  localStorage.setItem('savedCreds',JSON.stringify({email,password}));
+  localStorage.setItem('savedUser',JSON.stringify(d.user));
   onAuth(d.token,d.user);
 }
 async function doDemo(){
@@ -1512,20 +1518,56 @@ async function tryAutoLogin(){
   }
   q('#hero-screen').style.display='none';
   q('#auth-screen').style.display='none';
+
+  // Tenta validar o token com o servidor
   const d=await api('GET','/auth/me');
+
   if(!d||d.error||!d.id){
+    // Servidor reiniciou e perdeu a sessão — tenta reautenticar silenciosamente
+    const savedUser=localStorage.getItem('savedUser');
+    const savedCreds=localStorage.getItem('savedCreds');
+    if(savedUser&&savedCreds){
+      try{
+        const creds=JSON.parse(savedCreds);
+        const re=await api('POST','/auth/login',creds);
+        if(re&&re.token&&re.user){
+          S.token=re.token;S.user=re.user;
+          localStorage.setItem('token',re.token);
+          localStorage.setItem('savedUser',JSON.stringify(re.user));
+          q('#app').style.display='flex';
+          initApp();
+          return;
+        }
+      }catch{}
+    }
+    // Se era conta demo, refaz login demo automaticamente
+    const demo=await api('POST','/auth/demo',{});
+    if(demo&&demo.token){
+      const prevUser=savedUser?JSON.parse(savedUser):null;
+      if(prevUser&&prevUser.email==='demo@bolao.com'){
+        S.token=demo.token;S.user=demo.user;
+        localStorage.setItem('token',demo.token);
+        q('#app').style.display='flex';
+        initApp();
+        return;
+      }
+    }
     localStorage.removeItem('token');
     S.token='';
     q('#hero-screen').style.display='flex';
     return;
   }
   S.user=d;
+  localStorage.setItem('savedUser',JSON.stringify(d));
   q('#app').style.display='flex';
   initApp();
 }
 async function doLogout(){
   await api('POST','/auth/logout');
-  S.token='';S.user=null;localStorage.removeItem('token');
+  S.token='';S.user=null;
+  localStorage.removeItem('token');
+  localStorage.removeItem('savedUser');
+  localStorage.removeItem('savedCreds');
   closeModal('logout');
   q('#app').style.display='none';
   q('#auth-screen').style.display='none';
@@ -1556,13 +1598,50 @@ async function syncAll(){
   if(Array.isArray(matches))S.matches=matches;
   if(Array.isArray(bets))S.bets=bets;
   if(Array.isArray(ranking))S.ranking=ranking;
-  if(Array.isArray(groups))S.groups=groups;
+
+  // Grupos: se o servidor retornou lista (mesmo vazia), mescla com localStorage
+  // Se o servidor reiniciou e perdeu os grupos, restaura do localStorage
+  const localGroups=loadLocalGroups();
+  if(Array.isArray(groups)&&groups.length>0){
+    // Servidor tem grupos — salva localmente e usa
+    S.groups=groups;
+    saveLocalGroups(groups);
+  } else if(localGroups.length>0){
+    // Servidor reiniciou sem grupos — usa dados locais e tenta recriar no servidor
+    S.groups=localGroups;
+    syncLocalGroupsToServer(localGroups);
+  } else {
+    S.groups=[];
+  }
+
   if(Array.isArray(notifs))S.notifications=notifs;
   if(Array.isArray(wcGroups))S.wcGroups=wcGroups;
   renderCurrentPage();
   renderNotifCount();
   const t=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   setInner('rank-updated','Atualizado às '+t);
+}
+
+function saveLocalGroups(groups){
+  try{localStorage.setItem('localGroups_'+S.user?.id,JSON.stringify(groups))}catch{}
+}
+function loadLocalGroups(){
+  try{const d=localStorage.getItem('localGroups_'+S.user?.id);return d?JSON.parse(d):[]}catch{return[]}
+}
+async function syncLocalGroupsToServer(groups){
+  // Tenta recriar grupos que só existem localmente (servidor reiniciou)
+  for(const g of groups){
+    const exists=await api('GET',`/clubs/${g.id}`);
+    if(exists&&exists.id)continue; // já existe
+    // Recriar no servidor
+    const created=await api('POST','/clubs',{name:g.name,type:g.type,password:g.password||''});
+    if(created&&created.id){
+      // Atualiza o id local para o novo id do servidor
+      const idx=S.groups.findIndex(x=>x.id===g.id);
+      if(idx!==-1)S.groups[idx]={...S.groups[idx],id:created.id,inviteCode:created.inviteCode};
+    }
+  }
+  saveLocalGroups(S.groups);
 }
 function renderTopbarAvatar(){
   const av=q('#topbar-av');
@@ -1607,7 +1686,7 @@ function setBracketTab(t){
 function setRankingTab(t){
   S.rankingTab=t;
   const tabs=q('#ranking-tabs').querySelectorAll('.tab');
-  const order=['geral','equipes','perguntas'];
+  const order=['geral','grupos','equipes','perguntas'];
   tabs.forEach((el,i)=>el.classList.toggle('active',order[i]===t));
   renderRanking();
 }
@@ -2003,75 +2082,125 @@ function renderBracket(){
 function renderBracketFases(){
   const c=q('#bracket-body');
   if(!c)return;
-  const stageOrder={r16:'Oitavas de Final',qf:'Quartas de Final',sf:'Semifinal',final:'Final'};
-  const stageKeys=['r16','qf','sf','final'];
-  const multipliers={r16:'×1',qf:'×1.5',sf:'×2',final:'×3'};
-  const byStage={};
-  stageKeys.forEach(k=>{byStage[k]=[]});
-  S.matches.forEach(m=>{if(m.stage&&byStage[m.stage])byStage[m.stage].push(m)});
+
+  // r32 = oitavas (32 times → 16 jogos), qf = quartas, sf = semis, third = 3º lugar, final
+  const stageOrder={r32:'Oitavas de Final',qf:'Quartas de Final',sf:'Semifinal',third:'3º Lugar',final:'Final'};
+  const stageBadge={r32:'badge-muted',qf:'badge-accent',sf:'badge-teal',third:'badge-muted',final:'badge-gold'};
+  const stageMult={r32:'×1',qf:'×1.5',sf:'×2',third:'×1',final:'×3'};
+  const stageKeys=['r32','qf','sf','third','final'];
+
+  const byStage={r32:[],qf:[],sf:[],third:[],final:[]};
+  S.matches.forEach(m=>{
+    const st=m.stage;
+    if(st==='r32'||st==='r16')byStage.r32.push(m); // aceita ambos
+    else if(byStage[st])byStage[st].push(m);
+  });
   const hasAnyKO=stageKeys.some(k=>byStage[k].length>0);
 
   let html=`<div class="knockout-hero">
     <div class="knockout-hero-icon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
     </div>
-    <div class="knockout-hero-title">O temido Mata-mata</div>
-    <div class="knockout-hero-sub">Não recomendado para cardíacos</div>
-    <button class="btn btn-outline" style="width:auto;padding:8px 18px;font-size:12px;margin-top:12px" onclick="showKnockoutInfo()">Saiba como funciona</button>
-  </div>
-  <div class="phase-info-card">
-    <div class="phase-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/></svg>
-    </div>
-    <div>
-      <div style="font-size:14px;font-weight:700;color:var(--text)">Multiplicadores por fase</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Pontos maiores nas fases finais</div>
-      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        ${stageKeys.map(k=>`<span class="badge badge-${k==='final'?'gold':k==='sf'?'teal':'accent'}">${stageOrder[k].split(' ')[0]} ${multipliers[k]}</span>`).join('')}
-      </div>
-    </div>
+    <div class="knockout-hero-title">Mata-mata 2026</div>
+    <div class="knockout-hero-sub">Copa do Mundo · Fase eliminatória</div>
+    <button class="btn btn-outline" style="width:auto;padding:8px 18px;font-size:12px;margin-top:12px" onclick="showKnockoutInfo()">Como funciona</button>
   </div>`;
+
+  // Barra de navegação de fases
+  const activeStageFilled=stageKeys.find(k=>byStage[k].length>0)||'r32';
+  html+=`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px;scrollbar-width:none">`;
+  stageKeys.forEach(k=>{
+    const cnt=byStage[k].length;
+    const active=k===activeStageFilled;
+    html+=`<div onclick="scrollToBracketStage('${k}')" style="flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${active?'var(--accent)':'var(--border)'};background:${active?'var(--accent)':'#fff'};color:${active?'#fff':'var(--muted)'};transition:all .15s">
+      ${stageOrder[k]}${cnt?' <span style="opacity:0.7">('+cnt+')</span>':''}
+    </div>`;
+  });
+  html+=`</div>`;
 
   if(!hasAnyKO){
     html+=`<div class="empty">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/></svg>
+      <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/></svg></div>
       <div class="empty-title">Fase eliminatória não iniciada</div>
-      <div class="empty-sub">Os confrontos aparecerão aqui quando a fase de grupos terminar</div>
+      <div class="empty-sub">Os confrontos aparecem aqui quando a fase de grupos terminar (28 Jun)</div>
+    </div>
+    <div style="margin-top:16px;padding:16px;background:var(--card);border:1px solid rgba(255,255,255,0.7);border-radius:var(--radius);box-shadow:var(--shadow-card)">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Multiplicadores de pontos</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${stageKeys.filter(k=>k!=='third').map(k=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(15,23,42,0.02);border-radius:10px;border:1px solid var(--border)">
+          <span style="font-size:13px;color:var(--text);font-weight:500">${stageOrder[k]}</span>
+          <span class="badge ${stageBadge[k]}">${stageMult[k]}</span>
+        </div>`).join('')}
+      </div>
     </div>`;
     c.innerHTML=html;return;
   }
 
-  html+=`<div class="bracket-scroll"><div class="bracket-grid">`;
-  stageKeys.forEach((sk,ri)=>{
-    const rounds=byStage[sk];
-    if(!rounds.length)return;
-    html+=`<div class="bracket-col">
-      <div class="bracket-col-title">${stageOrder[sk]}</div>
-      <div class="bracket-matches" style="justify-content:space-around">`;
-    rounds.forEach(m=>{
+  // Renderiza cada fase como seção vertical (mobile-friendly)
+  stageKeys.forEach(sk=>{
+    const matches=byStage[sk];
+    if(!matches.length)return;
+    const isSpecial=sk==='final'||sk==='third';
+    html+=`<div id="bracket-stage-${sk}" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:800;color:var(--text);letter-spacing:-0.3px">${stageOrder[sk]}</div>
+        <span class="badge ${stageBadge[sk]}">${stageMult[sk]}</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--muted2)">${matches.length} jogo${matches.length>1?'s':''}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">`;
+
+    matches.forEach(m=>{
       const fin=m.status==='finished';
+      const live=m.status==='live';
       const hW=fin&&(m.homeScore??0)>(m.awayScore??0);
       const aW=fin&&(m.awayScore??0)>(m.homeScore??0);
       const hf=flag(m.homeTeam),af=flag(m.awayTeam);
-      html+=`<div class="bracket-match">
-        <div class="bslot${hW?' winner':''}">
-          <span class="bflag">${hf}</span>
-          <span class="bname">${m.homeTeam.name}</span>
-          ${fin?`<span class="bscore${hW?' w':''}">${m.homeScore}</span>`:'<span class="b-tbd">—</span>'}
+      const dt=new Date(m.kickoffAt);
+      const dateStr=dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+      const timeStr=fmtTime(m.kickoffAt);
+      const statusBadge=live
+        ?`<span class="badge badge-live" style="font-size:10px"><span class="live-dot"></span>Ao vivo</span>`
+        :fin?`<span class="badge badge-muted" style="font-size:10px">Encerrado</span>`
+        :`<span style="font-size:11px;color:var(--muted)">${dateStr} · ${timeStr}</span>`;
+
+      html+=`<div style="background:var(--card);border:1px solid ${isSpecial?'rgba(245,158,11,0.3)':'rgba(255,255,255,0.85)'};border-radius:${isSpecial?'20px':'16px'};overflow:hidden;box-shadow:var(--shadow-card);${isSpecial?'box-shadow:0 4px 20px rgba(245,158,11,0.15)':''}">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px 7px;border-bottom:1px solid var(--border2)">
+          <span style="font-size:11px;color:var(--muted);font-weight:500">${m.venue||m.city||''}</span>
+          ${statusBadge}
         </div>
-        <div class="bslot${aW?' winner':''}">
-          <span class="bflag">${af}</span>
-          <span class="bname">${m.awayTeam.name}</span>
-          ${fin?`<span class="bscore${aW?' w':''}">${m.awayScore}</span>`:'<span class="b-tbd">—</span>'}
+        <div style="display:flex;align-items:center;padding:16px 14px;gap:8px">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="font-size:32px;line-height:1">${hf}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);text-align:center;${hW?'color:var(--accent)':''}">${m.homeTeam.shortName||m.homeTeam.name}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px">
+            ${fin||live
+              ?`<div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:28px;font-weight:800;color:var(--text);${hW?'color:var(--accent)':''}">${m.homeScore??0}</span>
+                  <span style="font-size:16px;color:var(--muted2)">×</span>
+                  <span style="font-size:28px;font-weight:800;color:var(--text);${aW?'color:var(--accent)':''}">${m.awayScore??0}</span>
+                </div>`
+              :`<div style="font-size:18px;font-weight:800;color:var(--muted2);letter-spacing:2px">VS</div>`
+            }
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="font-size:32px;line-height:1">${af}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);text-align:center;${aW?'color:var(--accent)':''}">${m.awayTeam.shortName||m.awayTeam.name}</div>
+          </div>
         </div>
       </div>`;
     });
     html+=`</div></div>`;
-    const remaining=stageKeys.slice(ri+1).some(k=>byStage[k].length>0);
-    if(remaining)html+=`<div class="bracket-sep"><div class="bracket-sep-line"></div></div>`;
   });
-  html+=`</div></div>`;
+
   c.innerHTML=html;
+}
+
+function scrollToBracketStage(sk){
+  const el=q(`#bracket-stage-${sk}`);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderSimulador(){
@@ -2164,6 +2293,7 @@ function renderGrupos(){
 function renderRanking(){
   const c=q('#ranking-body');
   if(!c)return;
+  if(S.rankingTab==='grupos'){renderRankingMyGroups(c);return;}
   if(S.rankingTab==='equipes'){renderRankingGroups(c);return;}
   if(S.rankingTab==='perguntas'){
     c.innerHTML=`<div class="empty">
@@ -2225,10 +2355,80 @@ function renderRanking(){
   c.innerHTML=html;
 }
 
+function renderRankingMyGroups(c){
+  if(!S.groups.length){
+    c.innerHTML=`<div class="empty">
+      <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="empty-title">Você ainda não está em um grupo</div>
+      <div class="empty-sub">Crie ou entre em um grupo para disputar com amigos</div>
+    </div>
+    <div style="padding:4px"><button class="btn btn-primary" onclick="goPage('grupos')">Ir para grupos</button></div>`;
+    return;
+  }
+
+  // Seletor de grupo
+  const selGid=S._rankGroupSel||S.groups[0]?.id;
+  S._rankGroupSel=selGid;
+  const g=S.groups.find(x=>x.id===selGid)||S.groups[0];
+  if(!g){c.innerHTML='';return;}
+
+  let html='';
+
+  // Tabs dos grupos (se mais de 1)
+  if(S.groups.length>1){
+    html+=`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;scrollbar-width:none">`;
+    S.groups.forEach(gr=>{
+      const active=gr.id===selGid;
+      html+=`<div onclick="S._rankGroupSel='${gr.id}';renderRanking()" style="flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${active?'var(--accent)':'var(--border)'};background:${active?'var(--accent)':'var(--card-solid)'};color:${active?'#fff':'var(--muted)'};transition:all .15s">${gr.name}</div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Cabeçalho do grupo
+  const me=g.members.find(m=>m.userId===S.user?.id);
+  const myPos=([...g.members].sort((a,b)=>b.points-a.points).findIndex(m=>m.userId===S.user?.id)+1)||'—';
+  html+=`<div style="background:linear-gradient(135deg,var(--accent),#1d4ed8);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;color:#fff">
+    <div style="font-size:12px;opacity:0.8;margin-bottom:2px">Seu grupo</div>
+    <div style="font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:10px">${g.name}</div>
+    <div style="display:flex;gap:20px">
+      <div><div style="font-size:22px;font-weight:800">${me?.points??0}</div><div style="font-size:11px;opacity:0.75">seus pontos</div></div>
+      <div><div style="font-size:22px;font-weight:800">${myPos}º</div><div style="font-size:11px;opacity:0.75">posição</div></div>
+      <div><div style="font-size:22px;font-weight:800">${g.members.length}</div><div style="font-size:11px;opacity:0.75">membros</div></div>
+    </div>
+  </div>`;
+
+  // Ranking dos membros
+  const sorted=[...g.members].sort((a,b)=>b.points-a.points);
+  html+=`<div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:0.8px">Classificação</div>
+    <button onclick="openGroupDetail('${g.id}')" style="font-size:12px;color:var(--accent);font-weight:600;background:none;border:none;cursor:pointer">Ver detalhes ›</button>
+  </div>`;
+  sorted.forEach((m,i)=>{
+    const isMe=m.userId===S.user?.id;
+    const uInfo=m.displayName
+      ?{displayName:m.displayName,avatarInitials:m.avatarInitials||m.displayName?.slice(0,2).toUpperCase()||'?',avatarColor:m.avatarColor||'#2563EB'}
+      :S.ranking.find(u=>u.id===m.userId)||{displayName:'Membro '+(i+1),avatarInitials:'?',avatarColor:'#2563EB'};
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    html+=`<div class="rank-item${isMe?' me':''}" style="animation:fadeSlideUp 0.2s ease ${i*40}ms both">
+      <div class="rank-pos" style="${i<3?'font-size:18px':''}"> ${medal||i+1}</div>
+      <div class="avatar avatar-sm" style="background:${uInfo.avatarColor}">${uInfo.avatarInitials}</div>
+      <div class="rank-info">
+        <div class="rank-name">${uInfo.displayName}${isMe?' <span class="badge badge-accent" style="font-size:9px;padding:1px 6px">Você</span>':''}</div>
+        <div class="rank-meta">${m.betsTotal||0} palpites</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rank-pts">${m.points}</div>
+        <div style="font-size:10px;color:var(--muted2)">pts</div>
+      </div>
+    </div>`;
+  });
+  c.innerHTML=html;
+}
+
 function renderRankingGroups(c){
   if(!S.groups.length){
     c.innerHTML=`<div class="empty">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       <div class="empty-title">Nenhum grupo</div>
       <div class="empty-sub">Entre em um grupo para ver o ranking</div>
     </div>
@@ -2567,18 +2767,18 @@ async function sendChat(gid){
 }
 async function leaveGroup(gid){
   if(!confirm('Sair do grupo? Você poderá entrar novamente com o código.'))return;
-  const d=await api('POST',`/clubs/${gid}/leave`);
-  if(d.error)return toast('Erro ao sair do grupo.');
+  await api('POST',`/clubs/${gid}/leave`);
   S.groups=S.groups.filter(g=>g.id!==gid);
+  saveLocalGroups(S.groups);
   closeModal('detail');
   renderGrupos();
   toast('Você saiu do grupo.');
 }
 async function deleteGroup(gid){
   if(!confirm('Encerrar o grupo permanentemente? Esta ação não pode ser desfeita.'))return;
-  const d=await api('DELETE',`/clubs/${gid}`);
-  if(d.error)return toast('Erro ao encerrar grupo.');
+  await api('DELETE',`/clubs/${gid}`);
   S.groups=S.groups.filter(g=>g.id!==gid);
+  saveLocalGroups(S.groups);
   closeModal('detail');
   renderGrupos();
   toast('Grupo encerrado.');
@@ -2605,10 +2805,10 @@ async function doCreateGroup(){
   const nameEl=q('#cg-name');const passEl=q('#cg-pass');
   if(nameEl)nameEl.value='';if(passEl)passEl.value='';
   S.groups.push(d);
+  saveLocalGroups(S.groups);
   closeModal('create');
   toast('✓ Grupo criado! Compartilhe o código com seus amigos.');
   goPage('grupos');
-  // Abrir o detalhe do grupo recém-criado
   setTimeout(()=>openGroupDetail(d.id),300);
 }
 async function doJoinGroup(){
@@ -2616,11 +2816,12 @@ async function doJoinGroup(){
   const password=q('#jg-pass').value;
   if(!inviteCode)return toast('Cole o código de convite aqui');
   const d=await api('POST','/clubs/join',{inviteCode,password});
-  if(d.error)return toast(d.error==='Group not found'?'Código inválido. Verifique e tente novamente.':d.error);
+  if(d.error)return toast(d.error==='Código inválido'||d.error==='Group not found'?'Código inválido. Verifique e tente novamente.':d.error);
   closeModal('join');
   toast('Bem-vindo ao grupo! Boa sorte.');
   const groups=await api('GET','/clubs');
-  if(Array.isArray(groups)){S.groups=groups;renderGrupos()}
+  if(Array.isArray(groups)&&groups.length>0){S.groups=groups;saveLocalGroups(groups)}
+  renderGrupos();
 }
 q('#cg-type')?.addEventListener('change',function(){
   const p=q('#cg-pass');
