@@ -685,6 +685,134 @@ select.modal-input{cursor:pointer;appearance:none;
 .page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
 .page-sub{font-size:13px;color:var(--muted);margin-top:3px}
 
+/* ── GRUPO DETAIL PAGE ── */
+#page-grupo-detail{z-index:10}
+.gd-hero{
+  margin:-20px -16px 0;
+  padding:20px 20px 28px;
+  background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#2563eb 100%);
+  position:relative;overflow:hidden;
+}
+.gd-hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.gd-back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.12);border:none;cursor:pointer;
+  color:#fff;font-size:13px;font-weight:600;
+  padding:7px 12px;border-radius:20px;margin-bottom:20px;
+  backdrop-filter:blur(8px);width:fit-content;
+  transition:background .15s;
+}
+.gd-back-btn:hover{background:rgba(255,255,255,0.20)}
+.gd-hero-name{
+  font-size:28px;font-weight:900;color:#fff;
+  letter-spacing:-0.8px;line-height:1.1;margin-bottom:6px;
+  text-shadow:0 2px 12px rgba(0,0,0,0.25);
+}
+.gd-hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.gd-hero-badge{
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;
+  background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);
+  border:1px solid rgba(255,255,255,0.2);
+}
+.gd-stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+}
+.gd-stat-card{
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:14px;padding:12px 10px;text-align:center;
+}
+.gd-stat-val{font-size:22px;font-weight:800;color:#fff;line-height:1}
+.gd-stat-lbl{font-size:10px;color:rgba(255,255,255,0.65);margin-top:3px;text-transform:uppercase;letter-spacing:0.4px}
+
+.gd-invite{
+  margin:20px 0;
+  padding:16px;
+  background:var(--surface2);
+  border:1.5px dashed var(--border);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.gd-invite-code{
+  font-size:22px;font-weight:800;color:var(--text);
+  letter-spacing:4px;font-family:monospace;
+}
+.gd-invite-lbl{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
+.gd-copy-btn{
+  display:flex;align-items:center;gap:5px;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;
+  padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;
+  white-space:nowrap;flex-shrink:0;transition:all .15s;
+}
+.gd-copy-btn:active{transform:scale(0.95)}
+
+.gd-section-title{
+  font-size:11px;font-weight:700;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:1px;
+  margin:24px 0 12px;
+  display:flex;align-items:center;gap:8px;
+}
+.gd-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.gd-member{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;margin-bottom:8px;
+  transition:background .15s;
+}
+.gd-member.me{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2)}
+.gd-medal{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.gd-member-info{flex:1;min-width:0}
+.gd-member-name{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.gd-member-pts{font-size:13px;font-weight:800;color:var(--accent)}
+
+.gd-chat-feed{
+  max-height:none;
+  display:flex;flex-direction:column;gap:14px;
+  margin-bottom:12px;
+}
+.gd-msg{display:flex;gap:10px}
+.gd-msg.mine{flex-direction:row-reverse}
+.gd-msg-bubble{
+  max-width:78%;padding:10px 14px;
+  font-size:13px;line-height:1.5;color:var(--text);
+  background:var(--surface2);
+  border-radius:4px 16px 16px 16px;
+}
+.gd-msg.mine .gd-msg-bubble{
+  background:var(--accent);color:#fff;
+  border-radius:16px 4px 16px 16px;
+}
+.gd-msg-name{font-size:11px;font-weight:600;color:var(--muted2);margin-bottom:3px}
+.gd-msg-time{font-size:10px;color:var(--muted2);margin-top:4px;text-align:right}
+.gd-chat-input-row{
+  display:flex;gap:8px;
+  position:sticky;bottom:0;
+  background:var(--bg);
+  padding:12px 0 4px;
+  border-top:1px solid var(--border);
+  margin:0 -16px;
+  padding:12px 16px 8px;
+}
+.gd-send-btn{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s;
+}
+.gd-send-btn:active{transform:scale(0.93)}
+
+.gd-action-row{
+  display:flex;gap:10px;margin-top:24px;padding-top:20px;
+  border-top:1px solid var(--border);
+}
+
 /* ── TABS ── */
 .tabs{
   display:flex;gap:4px;background:rgba(15,23,42,0.05);
@@ -1377,6 +1505,11 @@ select.modal-input{cursor:pointer;appearance:none;
       <div id="grupos-body"></div>
     </div>
 
+    <!-- GRUPO DETALHE (página full) -->
+    <div id="page-grupo-detail" class="page">
+      <div id="grupo-detail-body"></div>
+    </div>
+
     <!-- RANKING -->
     <div id="page-ranking" class="page">
       <div class="page-header">
@@ -1867,7 +2000,8 @@ function renderTopbarAvatar(){
 /* ── NAVIGATION ── */
 function goPage(name){
   S.page=name;
-  localStorage.setItem('lastPage',name);
+  // não salva a sub-página de grupo no lastPage
+  if(name!=='grupo-detail')localStorage.setItem('lastPage',name);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
   q('#page-'+name)?.classList.add('active');
@@ -2909,142 +3043,190 @@ let _groupTab='ranking';
 function openGroupDetail(gid,tab){
   const g=S.groups.find(g=>g.id===gid);
   if(!g)return;
-  const body=q('#modal-detail-body');
-  if(!body)return;
   _groupTab=tab||_groupTab||'ranking';
   const isAdmin=g.members.find(m=>m.userId===S.user?.id)?.role==='admin';
-  const isMember=g.members.some(m=>m.userId===S.user?.id);
-
-  // ── Stats ──
-  const totalBets=S.bets.length;
   const myMember=g.members.find(m=>m.userId===S.user?.id);
-  const topMember=g.members.reduce((a,b)=>a.points>=b.points?a:b,g.members[0]||{points:0});
+  const totalBets=S.bets.length;
+  const sorted=g.members.slice().sort((a,b)=>b.points-a.points);
+  const topMember=sorted[0]||{points:0};
   const topUser=S.ranking.find(u=>u.id===topMember?.userId)||{displayName:'—',avatarInitials:'?',avatarColor:'#2563EB'};
 
-  // ── Tab: Ranking ──
-  const memberLines=g.members
-    .slice().sort((a,b)=>b.points-a.points)
-    .map((m,i)=>{
-      const u=S.ranking.find(u=>u.id===m.userId)||{displayName: m.displayName||'Membro',avatarInitials:m.avatarInitials||'?',avatarColor:m.avatarColor||'#2563EB'};
-      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-      const isMe=m.userId===S.user?.id;
-      return`<div class="rank-item${isMe?' me':''}" style="margin-bottom:6px;${isMe?'background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:8px 10px':''}">
-        <div class="rank-pos" style="font-size:${medal?'18px':'13px'}">${medal||i+1}</div>
-        <div class="avatar avatar-sm" style="background:${u.avatarColor||'#2563EB'}">${u.avatarInitials||'?'}</div>
-        <div class="rank-info"><div class="rank-name">${u.displayName}${isMe?'<span style="font-size:10px;color:var(--accent);margin-left:4px">você</span>':''}</div></div>
-        <div class="rank-pts">${m.points} pts</div>
-      </div>`;
-    }).join('');
+  // ── Ranking tab ──
+  const rankingHtml=sorted.length?sorted.map((m,i)=>{
+    const u=S.ranking.find(u=>u.id===m.userId)||{displayName:m.displayName||'Membro',avatarInitials:m.avatarInitials||'?',avatarColor:m.avatarColor||'#2563EB'};
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const isMe=m.userId===S.user?.id;
+    return`<div class="gd-member${isMe?' me':''}">
+      <div class="gd-medal">${medal||`<span style="font-size:13px;font-weight:700;color:var(--muted2)">${i+1}</span>`}</div>
+      <div class="avatar" style="background:${u.avatarColor||'#2563EB'};width:38px;height:38px;font-size:14px;flex-shrink:0">${u.avatarInitials||'?'}</div>
+      <div class="gd-member-info">
+        <div class="gd-member-name">${u.displayName}${isMe?'<span style="font-size:10px;background:var(--accent-dim);color:var(--accent);padding:1px 6px;border-radius:6px">você</span>':''}</div>
+        <div style="font-size:11px;color:var(--muted)">Posição #${i+1}</div>
+      </div>
+      <div class="gd-member-pts">${m.points} pts</div>
+    </div>`;
+  }).join('')
+  :`<div class="empty" style="padding:32px 0"><div class="empty-title">Nenhum membro ainda</div></div>`;
 
-  // ── Tab: Chat ──
-  const chatLines=(g.chat||[]).map(msg=>{
+  // ── Chat tab ──
+  const chatMsgs=(g.chat||[]).map(msg=>{
     const u=S.ranking.find(u=>u.id===msg.userId)||{displayName:msg.user?.displayName||'?',avatarInitials:msg.user?.avatarInitials||'?',avatarColor:msg.user?.avatarColor||'#2563EB'};
     const isMe=msg.userId===S.user?.id;
-    return`<div style="display:flex;gap:8px;margin-bottom:10px;${isMe?'flex-direction:row-reverse':''}">
-      <div class="avatar avatar-sm" style="background:${u.avatarColor||'#2563EB'};flex-shrink:0;margin-top:2px">${u.avatarInitials||'?'}</div>
-      <div style="${isMe?'align-items:flex-end;':''}display:flex;flex-direction:column;max-width:75%">
-        <div style="font-size:11px;font-weight:600;color:var(--muted2);margin-bottom:2px">${isMe?'Você':u.displayName}</div>
-        <div style="background:${isMe?'var(--accent)':'var(--surface2)'};color:${isMe?'#fff':'var(--text)'};border-radius:${isMe?'14px 4px 14px 14px':'4px 14px 14px 14px'};padding:8px 12px;font-size:13px;line-height:1.4">${msg.content}</div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:3px">${relTime(msg.createdAt)}</div>
+    return`<div class="gd-msg${isMe?' mine':''}">
+      <div class="avatar" style="background:${u.avatarColor};width:32px;height:32px;font-size:12px;flex-shrink:0;align-self:flex-end">${u.avatarInitials}</div>
+      <div style="display:flex;flex-direction:column;${isMe?'align-items:flex-end':''}">
+        <div class="gd-msg-name">${isMe?'Você':u.displayName}</div>
+        <div class="gd-msg-bubble">${msg.content}</div>
+        <div class="gd-msg-time">${relTime(msg.createdAt)}</div>
       </div>
     </div>`;
   }).join('');
-
-  // ── Tab: Info / Estatísticas ──
-  const statsHtml=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div style="background:var(--surface2);border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--accent)">${g.members.length}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Membros</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--accent)">${myMember?.points??0}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Seus pontos</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--accent)">${myMember?.rank??'—'}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Sua posição</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--accent)">${totalBets}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Palpites dados</div>
-      </div>
+  const chatHtml=`
+    <div id="gd-chat-feed-${g.id}" class="gd-chat-feed">
+      ${chatMsgs||'<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:14px">Nenhuma mensagem ainda 💬<br><span style="font-size:12px;opacity:.7">Seja o primeiro a escrever!</span></div>'}
     </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Líder atual</div>
-    <div class="rank-item" style="margin-bottom:16px">
-      <div class="rank-pos" style="font-size:18px">🥇</div>
-      <div class="avatar avatar-sm" style="background:${topUser.avatarColor||'#2563EB'}">${topUser.avatarInitials||'?'}</div>
-      <div class="rank-info"><div class="rank-name">${topUser.displayName}</div></div>
-      <div class="rank-pts">${topMember?.points??0} pts</div>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Sobre o grupo</div>
-    <div style="background:var(--surface2);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);line-height:1.6">
-      <div><b style="color:var(--text)">Tipo:</b> ${g.type==='public'?'🌐 Público':g.type==='invite'?'🔗 Somente convite':'🔒 Privado'}</div>
-      <div style="margin-top:6px"><b style="color:var(--text)">Criado em:</b> ${g.createdAt?new Date(g.createdAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}):'—'}</div>
-      ${g.description?`<div style="margin-top:6px"><b style="color:var(--text)">Descrição:</b> ${g.description}</div>`:''}
-    </div>`;
-
-  const tabs=[
-    {id:'ranking',label:'Ranking',icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'},
-    {id:'chat',label:'Chat',icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
-    {id:'info',label:'Estatísticas',icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'},
-  ];
-  const tabBar=tabs.map(t=>`<button onclick="openGroupDetail('${g.id}','${t.id}')"
-    style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border:none;cursor:pointer;font-size:12px;font-weight:${_groupTab===t.id?'700':'500'};
-    background:${_groupTab===t.id?'var(--accent)':'transparent'};color:${_groupTab===t.id?'#fff':'var(--muted)'};
-    border-radius:8px;transition:all .15s">${t.icon}${t.label}</button>`).join('');
-
-  const tabContent=
-    _groupTab==='ranking'?`${memberLines||'<div class="empty" style="padding:20px 0"><div class="empty-title">Nenhum membro ainda</div></div>'}`:
-    _groupTab==='chat'?`<div id="chat-feed-${g.id}" style="max-height:200px;overflow-y:auto;margin-bottom:12px;padding-right:4px">${chatLines||'<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">Nenhuma mensagem ainda 💬</div>'}</div>
-    <div style="display:flex;gap:8px">
-      <input id="chat-${g.id}" class="modal-input" placeholder="Mensagem..." style="margin-bottom:0;flex:1"
+    <div class="gd-chat-input-row">
+      <input id="gd-chat-${g.id}" class="modal-input" placeholder="Escreva uma mensagem..." style="margin-bottom:0;flex:1"
         onkeydown="if(event.key==='Enter')sendChat('${g.id}')"/>
-      <button class="btn btn-primary" style="width:auto;padding:12px 16px;flex-shrink:0" onclick="sendChat('${g.id}')">
+      <button class="gd-send-btn" onclick="sendChat('${g.id}')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
-    </div>`:
-    statsHtml;
+    </div>`;
 
-  body.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="modal-title" style="margin-bottom:0">${g.name}</div>
-      ${isAdmin?`<span class="badge badge-teal" style="font-size:10px">Admin</span>`:''}
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-      <span class="badge badge-accent">${g.members.length} membro${g.members.length!==1?'s':''}</span>
-      <span class="badge badge-success">Ativo</span>
-      <span class="badge badge-muted">${g.type==='public'?'🌐 Público':g.type==='invite'?'🔗 Convite':'🔒 Privado'}</span>
-    </div>
-    <div class="invite-code-box" style="margin-bottom:14px">
-      <div>
-        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Código de convite</div>
-        <div class="invite-code-text">${g.inviteCode}</div>
+  // ── Info tab ──
+  const infoHtml=`
+    <div class="gd-section-title">Sua performance</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+      <div style="background:var(--surface2);border-radius:14px;padding:16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)">${myMember?.points??0}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px">Seus pontos</div>
       </div>
-      <button class="copy-btn" onclick="navigator.clipboard.writeText('${g.inviteCode}').then(()=>toast('Código copiado!'))">Copiar</button>
+      <div style="background:var(--surface2);border-radius:14px;padding:16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)">${myMember?sorted.findIndex(m=>m.userId===S.user?.id)+1:'—'}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px">Posição</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:14px;padding:16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)">${totalBets}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px">Palpites</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:14px;padding:16px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)">${g.members.length}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px">Membros</div>
+      </div>
     </div>
-    <div style="display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:16px">${tabBar}</div>
-    <div id="group-tab-content">${tabContent}</div>
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+    <div class="gd-section-title">Líder do grupo</div>
+    <div class="gd-member" style="margin-bottom:0">
+      <div class="gd-medal">🥇</div>
+      <div class="avatar" style="background:${topUser.avatarColor};width:38px;height:38px;font-size:14px;flex-shrink:0">${topUser.avatarInitials}</div>
+      <div class="gd-member-info">
+        <div class="gd-member-name">${topUser.displayName}</div>
+        <div style="font-size:11px;color:var(--muted)">Líder com ${topMember.points} pontos</div>
+      </div>
+    </div>
+    <div class="gd-section-title">Sobre o grupo</div>
+    <div style="background:var(--surface2);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:var(--muted)">Tipo</span>
+        <span style="font-weight:600;color:var(--text)">${g.type==='public'?'🌐 Público':g.type==='invite'?'🔗 Somente convite':'🔒 Privado'}</span>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:var(--muted)">Criado em</span>
+        <span style="font-weight:600;color:var(--text)">${g.createdAt?new Date(g.createdAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'—'}</span>
+      </div>
+      ${g.description?`<div style="height:1px;background:var(--border)"></div><div style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">Descrição:</b> ${g.description}</div>`:''}
+    </div>
+    <div class="gd-action-row">
       ${isAdmin
-        ?`<button class="btn btn-outline" style="width:auto;padding:9px 14px;font-size:12px;flex:1" onclick="regenGroupCode('${g.id}')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.2"/></svg>
+        ?`<button class="btn btn-outline" style="flex:1;font-size:13px" onclick="regenGroupCode('${g.id}')">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.2"/></svg>
             Novo código
           </button>
-          <button class="btn btn-danger" style="width:auto;padding:9px 14px;font-size:12px;flex:1" onclick="deleteGroup('${g.id}')">Encerrar grupo</button>`
-        :`<button class="btn btn-outline" style="width:auto;padding:9px 14px;font-size:12px;width:100%;color:var(--danger);border-color:rgba(239,68,68,0.3)" onclick="leaveGroup('${g.id}')">Sair do grupo</button>`
+          <button class="btn btn-danger" style="flex:1;font-size:13px" onclick="deleteGroup('${g.id}')">Encerrar grupo</button>`
+        :`<button class="btn btn-outline" style="flex:1;font-size:13px;color:var(--danger);border-color:rgba(239,68,68,0.3)" onclick="leaveGroup('${g.id}')">Sair do grupo</button>`
       }
     </div>`;
-  openModal('detail');
-  // auto-scroll chat to bottom
+
+  // ── Tabs bar ──
+  const tabs=[
+    {id:'ranking',icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>',label:'Ranking'},
+    {id:'chat',   icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',label:'Chat'},
+    {id:'info',   icon:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',label:'Info'},
+  ];
+  const tabBar=tabs.map(t=>`
+    <button onclick="openGroupDetail('${g.id}','${t.id}')"
+      style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+      padding:10px 4px;border:none;cursor:pointer;font-size:12px;font-weight:600;
+      color:${_groupTab===t.id?'var(--accent)':'var(--muted)'};
+      background:transparent;border-bottom:2px solid ${_groupTab===t.id?'var(--accent)':'transparent'};
+      transition:all .15s">
+      ${t.icon}${t.label}
+    </button>`).join('');
+
+  const content=_groupTab==='ranking'?rankingHtml:_groupTab==='chat'?chatHtml:infoHtml;
+
+  // ── Render na página full ──
+  const body=q('#grupo-detail-body');
+  if(!body)return;
+  body.innerHTML=`
+    <!-- Hero banner -->
+    <div class="gd-hero">
+      <button class="gd-back-btn" onclick="goPage('grupos')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        Meus Grupos
+      </button>
+      <div class="gd-hero-name">${g.name}</div>
+      <div class="gd-hero-meta">
+        ${isAdmin?'<span class="gd-hero-badge">👑 Admin</span>':''}
+        <span class="gd-hero-badge">${g.type==='public'?'🌐 Público':g.type==='invite'?'🔗 Convite':'🔒 Privado'}</span>
+        <span class="gd-hero-badge">✅ Ativo</span>
+      </div>
+      <div class="gd-stats-row">
+        <div class="gd-stat-card">
+          <div class="gd-stat-val">${g.members.length}</div>
+          <div class="gd-stat-lbl">Membros</div>
+        </div>
+        <div class="gd-stat-card">
+          <div class="gd-stat-val">${myMember?.points??0}</div>
+          <div class="gd-stat-lbl">Seus pts</div>
+        </div>
+        <div class="gd-stat-card">
+          <div class="gd-stat-val">${myMember?sorted.findIndex(m=>m.userId===S.user?.id)+1:'—'}</div>
+          <div class="gd-stat-lbl">Posição</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Código de convite -->
+    <div class="gd-invite">
+      <div>
+        <div class="gd-invite-lbl">Código de convite</div>
+        <div class="gd-invite-code">${g.inviteCode}</div>
+      </div>
+      <button class="gd-copy-btn" onclick="navigator.clipboard.writeText('${g.inviteCode}').then(()=>toast('✓ Código copiado!'))">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--border);margin:0 -16px;padding:0 16px;gap:0">
+      ${tabBar}
+    </div>
+
+    <!-- Tab content -->
+    <div style="margin-top:20px">${content}</div>`;
+
+  goPage('grupo-detail');
+  // scroll feed chat
   if(_groupTab==='chat'){
-    const feed=q(`#chat-feed-${g.id}`);
-    if(feed)setTimeout(()=>{feed.scrollTop=feed.scrollHeight},50);
+    const feed=q(`#gd-chat-feed-${g.id}`);
+    if(feed)setTimeout(()=>{feed.scrollTop=feed.scrollHeight},60);
   }
 }
 
 async function sendChat(gid){
-  const inp=q(`#chat-${gid}`);
+  const inp=q(`#gd-chat-${gid}`)||q(`#chat-${gid}`);
   const content=inp?.value.trim();
   if(!content)return;
   await api('POST',`/clubs/${gid}/chat`,{content});
@@ -3059,8 +3241,7 @@ async function leaveGroup(gid){
   if(d.error)return toast(d.error);
   S.groups=S.groups.filter(g=>g.id!==gid);
   saveLocalGroups(S.groups);
-  closeModal('detail');
-  renderGrupos();
+  goPage('grupos');
   toast('Você saiu do grupo.');
 }
 async function deleteGroup(gid){
@@ -3069,15 +3250,14 @@ async function deleteGroup(gid){
   if(d.error)return toast(d.error);
   S.groups=S.groups.filter(g=>g.id!==gid);
   saveLocalGroups(S.groups);
-  closeModal('detail');
-  renderGrupos();
+  goPage('grupos');
   toast('Grupo encerrado.');
 }
 async function regenGroupCode(gid){
   const d=await api('POST',`/clubs/${gid}/regen-code`);
   if(d.error)return toast('Erro ao gerar novo código.');
   const g=S.groups.find(g=>g.id===gid);
-  if(g&&d.inviteCode){g.inviteCode=d.inviteCode;saveLocalGroups(S.groups);openGroupDetail(gid);}
+  if(g&&d.inviteCode){g.inviteCode=d.inviteCode;saveLocalGroups(S.groups);openGroupDetail(gid,'info');}
   toast('Novo código gerado!');
 }
 async function doCreateGroup(){
@@ -3110,9 +3290,8 @@ async function doCreateGroup(){
   S.groups.push(d);
   saveLocalGroups(S.groups);
   closeModal('create');
-  toast('✓ Grupo criado! Compartilhe o código com seus amigos.');
-  goPage('grupos');
-  setTimeout(()=>openGroupDetail(d.id),300);
+  toast('✓ Grupo criado!');
+  setTimeout(()=>openGroupDetail(d.id,'info'),100);
 }
 async function doJoinGroup(){
   const inviteCode=q('#jg-code').value.trim().toUpperCase();
@@ -3123,8 +3302,8 @@ async function doJoinGroup(){
   closeModal('join');
   toast('Bem-vindo ao grupo! Boa sorte.');
   const groups=await api('GET','/clubs');
-  if(Array.isArray(groups)&&groups.length>0){S.groups=groups;saveLocalGroups(groups)}
-  renderGrupos();
+  if(Array.isArray(groups)&&groups.length>0){S.groups=groups;saveLocalGroups(groups);}
+  setTimeout(()=>openGroupDetail(d.id,'ranking'),100);
 }
 q('#cg-type')?.addEventListener('change',function(){
   const p=q('#cg-pass');
