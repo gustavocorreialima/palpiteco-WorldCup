@@ -1,18 +1,22 @@
 import { FastifyInstance } from "fastify";
-import { users, createSession, getUserFromToken, sessions } from "../../../shared/database/seed";
+import { supabase } from "../../../shared/database/supabase";
 
 export async function authRoutes(app: FastifyInstance) {
+
   // Login
   app.post("/login", async (req, reply) => {
     const { email, password } = req.body as { email: string; password: string };
-    const user = users.find(u => u.email === email);
+    if (!email || !password)
+      return reply.status(400).send({ error: "Email e senha são obrigatórios" });
 
-    // Mock: any non-empty password works for demo accounts
-    if (!user || !password) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user)
       return reply.status(401).send({ error: "Email ou senha incorretos" });
-    }
-    const token = createSession(user.id);
-    return reply.send({ token, user: sanitize(user) });
+
+    const profile = await getProfile(data.user.id);
+    if (!profile) return reply.status(500).send({ error: "Perfil não encontrado" });
+
+    return reply.send({ token: data.session.access_token, user: profile });
   });
 
   // Register
@@ -20,60 +24,109 @@ export async function authRoutes(app: FastifyInstance) {
     const { username, email, displayName, password } = req.body as {
       username: string; email: string; displayName: string; password: string;
     };
-    if (!username || !email || !password || !displayName) {
+    if (!username || !email || !password || !displayName)
       return reply.status(400).send({ error: "Todos os campos são obrigatórios" });
+    if (password.length < 6)
+      return reply.status(400).send({ error: "Senha deve ter pelo menos 6 caracteres" });
+
+    // Check username uniqueness first
+    const { data: existing } = await supabase
+      .from("users").select("id").eq("username", username).maybeSingle();
+    if (existing) return reply.status(409).send({ error: "Username já em uso" });
+
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { display_name: displayName, username } },
+    });
+    if (error) {
+      if (error.message.includes("already registered"))
+        return reply.status(409).send({ error: "Email já cadastrado" });
+      return reply.status(400).send({ error: error.message });
     }
-    if (users.find(u => u.email === email)) {
-      return reply.status(409).send({ error: "Email já cadastrado" });
-    }
-    if (users.find(u => u.username === username)) {
-      return reply.status(409).send({ error: "Username já em uso" });
-    }
-    const initials = displayName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
-    const colors   = ["#2ECC71","#3498DB","#9B59B6","#E74C3C","#F39C12","#1ABC9C"];
-    const newUser  = {
-      id: `u${Date.now()}`, username, displayName, email,
-      passwordHash: "$2b$10$demo",
-      avatarInitials: initials,
-      avatarColor: colors[Math.floor(Math.random() * colors.length)],
-      points: 0, accuracy: 0, streak: 0, rank: users.length + 1,
-      level: 1, xp: 0,
-      betsTotal: 0, betsCorrect: 0, betsExact: 0,
-      badges: [], rankVariation: 0,
-    };
-    users.push(newUser);
-    const token = createSession(newUser.id);
-    return reply.status(201).send({ token, user: sanitize(newUser) });
+    if (!data.user) return reply.status(500).send({ error: "Erro ao criar conta" });
+
+    // Profile is created by DB trigger — wait a moment then fetch
+    await new Promise(r => setTimeout(r, 300));
+    const profile = await getProfile(data.user.id);
+
+    return reply.status(201).send({
+      token: data.session?.access_token ?? "",
+      user: profile,
+    });
   });
 
-  // Me (token validation)
+  // Me (validate token)
   app.get("/me", async (req, reply) => {
     const token = extractToken(req.headers.authorization);
-    const user  = getUserFromToken(token);
-    if (!user) return reply.status(401).send({ error: "Sessão inválida" });
-    return reply.send(sanitize(user));
+    if (!token) return reply.status(401).send({ error: "Token ausente" });
+
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return reply.status(401).send({ error: "Sessão inválida" });
+
+    const profile = await getProfile(user.id);
+    if (!profile) return reply.status(404).send({ error: "Perfil não encontrado" });
+    return reply.send(profile);
   });
 
   // Logout
   app.post("/logout", async (req, reply) => {
     const token = extractToken(req.headers.authorization);
-    sessions.delete(token);
+    if (token) await supabase.auth.admin.signOut(token).catch(() => {});
     return reply.send({ ok: true });
   });
 
-  // Demo login (one-click)
+  // Demo login
   app.post("/demo", async (_req, reply) => {
-    const user  = users[0];
-    const token = createSession(user.id);
-    return reply.send({ token, user: sanitize(user) });
+    const email = process.env.DEMO_EMAIL ?? "demo@bolao.com";
+    const pass  = process.env.DEMO_PASSWORD ?? "demo123456";
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error || !data.user) {
+      // Try to create demo account if it doesn't exist
+      const { data: reg } = await supabase.auth.signUp({
+        email, password: pass,
+        options: { data: { display_name: "Demo", username: "demo" } },
+      });
+      if (reg?.session) {
+        await new Promise(r => setTimeout(r, 300));
+        const profile = await getProfile(reg.user!.id);
+        return reply.send({ token: reg.session.access_token, user: profile });
+      }
+      return reply.status(500).send({ error: "Conta demo não disponível" });
+    }
+    const profile = await getProfile(data.user.id);
+    return reply.send({ token: data.session.access_token, user: profile });
   });
+}
+
+async function getProfile(userId: string) {
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    id:              data.id,
+    username:        data.username,
+    displayName:     data.display_name,
+    email:           data.email,
+    avatarInitials:  data.avatar_initials,
+    avatarColor:     data.avatar_color,
+    points:          data.points,
+    accuracy:        data.accuracy,
+    streak:          data.streak,
+    rank:            data.rank,
+    level:           data.level,
+    xp:              data.xp,
+    betsTotal:       data.bets_total,
+    betsCorrect:     data.bets_correct,
+    betsExact:       data.bets_exact,
+    badges:          data.badges,
+    rankVariation:   data.rank_variation,
+  };
 }
 
 function extractToken(auth?: string): string {
   return auth?.startsWith("Bearer ") ? auth.slice(7) : (auth ?? "");
-}
-
-function sanitize(u: (typeof users)[0]) {
-  const { passwordHash: _ph, ...safe } = u;
-  return safe;
 }

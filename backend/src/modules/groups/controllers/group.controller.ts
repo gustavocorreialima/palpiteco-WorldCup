@@ -1,34 +1,51 @@
 import { FastifyInstance } from "fastify";
-import {
-  clubs, Club, ClubMember, ChatMessage, users,
-  getUserFromToken, DEFAULT_RULES,
-} from "../../../shared/database/seed";
+import { supabase } from "../../../shared/database/supabase";
+import { DEFAULT_RULES } from "../../../shared/database/seed";
 
 export async function groupRoutes(app: FastifyInstance) {
-  // List all clubs (public) or clubs user is member of
+
+  // List all clubs
   app.get("/", async (req, reply) => {
-    const user   = resolveUser(req.headers.authorization);
-    const userId = user?.id;
-    const result = clubs.map(c => ({
-      ...c,
-      chat:    c.chat.slice(-3),           // last 3 messages preview
-      isMember: c.members.some(m => m.userId === userId),
-      memberCount: c.members.length,
+    const user = await resolveUser(req.headers.authorization);
+
+    const { data: clubs, error } = await supabase
+      .from("clubs")
+      .select(`
+        *,
+        club_members(user_id, role, points, rank, joined_at,
+          users(display_name, avatar_initials, avatar_color)),
+        chat_messages(id, user_id, content, reactions, created_at,
+          users(display_name, avatar_initials, avatar_color))
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) return reply.status(500).send({ error: error.message });
+
+    const result = (clubs ?? []).map(c => ({
+      ...toClub(c),
+      chat: (c.chat_messages ?? [])
+        .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 3)
+        .reverse()
+        .map(toMsg),
+      isMember: user ? (c.club_members ?? []).some((m: any) => m.user_id === user.id) : false,
+      memberCount: (c.club_members ?? []).length,
     }));
+
     return reply.send(result);
   });
 
   // Get single club
   app.get("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
-    const club   = clubs.find(c => c.id === id);
+    const club = await fetchClub(id);
     if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
-    return reply.send(enrichClub(club));
+    return reply.send(club);
   });
 
   // Create club
   app.post("/", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
 
     const { name, description, type, password } = req.body as {
@@ -36,126 +53,236 @@ export async function groupRoutes(app: FastifyInstance) {
     };
     if (!name) return reply.status(400).send({ error: "Nome obrigatório" });
 
-    const code: string = Math.random().toString(36).slice(2,8).toUpperCase();
-    const club: Club = {
-      id: `c${Date.now()}`, name, description: description ?? "",
-      ownerId: user.id, inviteCode: code,
-      type: type ?? "invite", password,
-      members: [{ userId: user.id, role: "admin", points: 0, rank: 1, joinedAt: new Date().toISOString() }],
-      chat: [],
-      scoringRules: DEFAULT_RULES,
-      createdAt: new Date().toISOString(),
-    };
-    clubs.push(club);
-    return reply.status(201).send(enrichClub(club));
+    const inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+    const { data: club, error } = await supabase
+      .from("clubs")
+      .insert({
+        name,
+        description: description ?? "",
+        owner_id: user.id,
+        invite_code: inviteCode,
+        type: type ?? "invite",
+        password: password ?? null,
+        scoring_rules: DEFAULT_RULES,
+      })
+      .select()
+      .single();
+
+    if (error) return reply.status(500).send({ error: error.message });
+
+    // Add creator as admin member
+    await supabase.from("club_members").insert({
+      club_id: club.id,
+      user_id: user.id,
+      role: "admin",
+      points: 0,
+      rank: 1,
+    });
+
+    return reply.status(201).send(await fetchClub(club.id));
   });
 
-  // Join club by invite code
+  // Join by invite code
   app.post("/join", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
 
     const { inviteCode, password } = req.body as { inviteCode: string; password?: string };
-    const club = clubs.find(c => c.inviteCode === inviteCode.toUpperCase());
-    if (!club) return reply.status(404).send({ error: "Código inválido" });
+
+    const { data: club, error } = await supabase
+      .from("clubs")
+      .select("*")
+      .eq("invite_code", inviteCode.toUpperCase())
+      .maybeSingle();
+
+    if (error || !club) return reply.status(404).send({ error: "Código inválido" });
     if (club.type === "private" && club.password !== password)
       return reply.status(403).send({ error: "Senha incorreta" });
-    if (club.members.some(m => m.userId === user.id))
-      return reply.status(409).send({ error: "Você já é membro" });
 
-    club.members.push({ userId: user.id, role: "member", points: 0, rank: club.members.length + 1, joinedAt: new Date().toISOString() });
-    return reply.send(enrichClub(club));
+    const { data: existing } = await supabase
+      .from("club_members")
+      .select("id")
+      .eq("club_id", club.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existing) return reply.status(409).send({ error: "Você já é membro" });
+
+    const { count } = await supabase
+      .from("club_members")
+      .select("*", { count: "exact", head: true })
+      .eq("club_id", club.id);
+
+    await supabase.from("club_members").insert({
+      club_id: club.id,
+      user_id: user.id,
+      role: "member",
+      points: 0,
+      rank: (count ?? 0) + 1,
+    });
+
+    return reply.send(await fetchClub(club.id));
   });
 
   // Send chat message
   app.post("/:id/chat", async (req, reply) => {
-    const user   = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
-    const { id } = req.params as { id: string };
-    const club   = clubs.find(c => c.id === id);
-    if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
-    if (!club.members.some(m => m.userId === user.id))
-      return reply.status(403).send({ error: "Você não é membro" });
 
+    const { id } = req.params as { id: string };
     const { content } = req.body as { content: string };
     if (!content?.trim()) return reply.status(400).send({ error: "Mensagem vazia" });
 
-    const msg: ChatMessage = {
-      id: `msg${Date.now()}`, userId: user.id,
-      content: content.slice(0, 500),
-      reactions: {},
-      createdAt: new Date().toISOString(),
-    };
-    club.chat.push(msg);
-    return reply.status(201).send({ ...msg, user: { displayName: user.displayName, avatarInitials: user.avatarInitials, avatarColor: user.avatarColor } });
+    const { data: member } = await supabase
+      .from("club_members")
+      .select("id")
+      .eq("club_id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!member) return reply.status(403).send({ error: "Você não é membro" });
+
+    const { data: msg, error } = await supabase
+      .from("chat_messages")
+      .insert({
+        club_id: id,
+        user_id: user.id,
+        content: content.trim().slice(0, 500),
+        reactions: {},
+      })
+      .select("*, users(display_name, avatar_initials, avatar_color)")
+      .single();
+
+    if (error) return reply.status(500).send({ error: error.message });
+    return reply.status(201).send(toMsg(msg));
   });
 
-  // React to chat message
+  // React to message
   app.post("/:id/chat/:msgId/react", async (req, reply) => {
-    const { id, msgId } = req.params as { id: string; msgId: string };
-    const { emoji }     = req.body as { emoji: string };
-    const club = clubs.find(c => c.id === id);
-    const msg  = club?.chat.find(m => m.id === msgId);
+    const { msgId } = req.params as { id: string; msgId: string };
+    const { emoji } = req.body as { emoji: string };
+
+    const { data: msg } = await supabase
+      .from("chat_messages")
+      .select("reactions")
+      .eq("id", msgId)
+      .maybeSingle();
     if (!msg) return reply.status(404).send({ error: "Mensagem não encontrada" });
-    msg.reactions[emoji] = (msg.reactions[emoji] ?? 0) + 1;
-    return reply.send(msg.reactions);
+
+    const reactions = { ...msg.reactions, [emoji]: ((msg.reactions as any)[emoji] ?? 0) + 1 };
+    await supabase.from("chat_messages").update({ reactions }).eq("id", msgId);
+    return reply.send(reactions);
   });
 
   // Leave club
   app.post("/:id/leave", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
     const { id } = req.params as { id: string };
-    const club   = clubs.find(c => c.id === id);
+    const { data: club } = await supabase.from("clubs").select("owner_id").eq("id", id).maybeSingle();
     if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
-    if (club.ownerId === user.id)
+    if (club.owner_id === user.id)
       return reply.status(400).send({ error: "Admin não pode sair — encerre o grupo ou transfira a propriedade" });
-    club.members = club.members.filter(m => m.userId !== user.id);
+
+    await supabase.from("club_members").delete().eq("club_id", id).eq("user_id", user.id);
     return reply.send({ ok: true });
   });
 
-  // Delete (end) club — admin only
+  // Delete club — admin only
   app.delete("/:id", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
     const { id } = req.params as { id: string };
-    const idx    = clubs.findIndex(c => c.id === id);
-    if (idx === -1) return reply.status(404).send({ error: "Clube não encontrado" });
-    if (clubs[idx].ownerId !== user.id)
-      return reply.status(403).send({ error: "Apenas o admin pode encerrar o grupo" });
-    clubs.splice(idx, 1);
+    const { data: club } = await supabase.from("clubs").select("owner_id").eq("id", id).maybeSingle();
+    if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
+    if (club.owner_id !== user.id) return reply.status(403).send({ error: "Apenas o admin pode encerrar o grupo" });
+
+    await supabase.from("clubs").delete().eq("id", id);
     return reply.send({ ok: true });
   });
 
   // Regenerate invite code — admin only
   app.post("/:id/regen-code", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
     const { id } = req.params as { id: string };
-    const club   = clubs.find(c => c.id === id);
+    const { data: club } = await supabase.from("clubs").select("owner_id").eq("id", id).maybeSingle();
     if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
-    if (club.ownerId !== user.id)
-      return reply.status(403).send({ error: "Apenas o admin pode gerar novo código" });
-    club.inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
-    return reply.send({ inviteCode: club.inviteCode });
+    if (club.owner_id !== user.id) return reply.status(403).send({ error: "Apenas o admin pode gerar novo código" });
+
+    const inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+    await supabase.from("clubs").update({ invite_code: inviteCode }).eq("id", id);
+    return reply.send({ inviteCode });
   });
 }
 
-function enrichClub(c: Club) {
+// ── Helpers ──
+
+async function resolveUser(auth?: string) {
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : (auth ?? "");
+  if (!token) return null;
+  const { data: { user } } = await supabase.auth.getUser(token);
+  if (!user) return null;
+  return user;
+}
+
+async function fetchClub(id: string) {
+  const { data, error } = await supabase
+    .from("clubs")
+    .select(`
+      *,
+      club_members(user_id, role, points, rank, joined_at,
+        users(display_name, avatar_initials, avatar_color)),
+      chat_messages(id, user_id, content, reactions, created_at,
+        users(display_name, avatar_initials, avatar_color))
+    `)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return toClub(data);
+}
+
+function toClub(c: any) {
   return {
-    ...c,
-    members: c.members.map(m => {
-      const u = users.find(u => u.id === m.userId);
-      return { ...m, displayName: u?.displayName, avatarInitials: u?.avatarInitials, avatarColor: u?.avatarColor };
-    }),
-    chat: c.chat.map(msg => {
-      const u = users.find(u => u.id === msg.userId);
-      return { ...msg, user: { displayName: u?.displayName, avatarInitials: u?.avatarInitials, avatarColor: u?.avatarColor } };
-    }),
+    id:          c.id,
+    name:        c.name,
+    description: c.description,
+    ownerId:     c.owner_id,
+    inviteCode:  c.invite_code,
+    type:        c.type,
+    createdAt:   c.created_at,
+    scoringRules: c.scoring_rules,
+    members: (c.club_members ?? []).map((m: any) => ({
+      userId:      m.user_id,
+      role:        m.role,
+      points:      m.points,
+      rank:        m.rank,
+      joinedAt:    m.joined_at,
+      displayName: m.users?.display_name,
+      avatarInitials: m.users?.avatar_initials,
+      avatarColor: m.users?.avatar_color,
+    })),
+    chat: (c.chat_messages ?? [])
+      .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .map(toMsg),
   };
 }
 
-function resolveUser(auth?: string) {
-  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : (auth ?? "");
-  return getUserFromToken(token);
+function toMsg(m: any) {
+  return {
+    id:        m.id,
+    userId:    m.user_id,
+    content:   m.content,
+    reactions: m.reactions ?? {},
+    createdAt: m.created_at,
+    user: {
+      displayName:    m.users?.display_name,
+      avatarInitials: m.users?.avatar_initials,
+      avatarColor:    m.users?.avatar_color,
+    },
+  };
 }

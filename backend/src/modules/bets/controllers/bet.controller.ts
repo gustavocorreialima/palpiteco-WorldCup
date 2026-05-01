@@ -1,124 +1,221 @@
 import { FastifyInstance } from "fastify";
-import { v4 as uuidv4 } from "uuid";
-import {
-  bets, matches, users, Bet,
-  calculatePoints, DEFAULT_RULES,
-  getUserFromToken,
-} from "../../../shared/database/seed";
+import { supabase } from "../../../shared/database/supabase";
+import { calculatePoints, DEFAULT_RULES } from "../../../shared/database/seed";
+import { getAllMatches, toFrontendMatch } from "../../../services/worldCupStaticService";
 
 export async function betRoutes(app: FastifyInstance) {
+
   // GET /api/bets — all bets for current user
   app.get("/", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization) ?? users[0];
-    const enriched = bets
-      .filter(b => b.userId === user.id)
-      .map(b => ({ ...b, match: matches.find(m => m.id === b.matchId) }))
-      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+    const user = await resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
+    const { data: bets, error } = await supabase
+      .from("bets")
+      .select("*, bet_edits(predicted_home, predicted_away, edited_at)")
+      .eq("user_id", user.id)
+      .order("submitted_at", { ascending: false });
+
+    if (error) return reply.status(500).send({ error: error.message });
+
+    const allMatches = getAllMatches();
+    const enriched = (bets ?? []).map(b => ({
+      ...toBet(b),
+      match: (() => {
+        const wc = allMatches.find(m => m.id === b.match_id);
+        return wc ? toFrontendMatch(wc) : null;
+      })(),
+    }));
+
     return reply.send(enriched);
   });
 
-  // GET /api/bets/score-rules — transparent scoring rules
+  // GET /api/bets/score-rules
   app.get("/score-rules", async (_req, reply) => reply.send(DEFAULT_RULES));
 
-  // GET /api/bets/log/:betId — full audit trail for a bet
+  // GET /api/bets/log/:betId
   app.get("/log/:betId", async (req, reply) => {
+    const user = await resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
     const { betId } = req.params as { betId: string };
-    const bet = bets.find(b => b.id === betId);
-    if (!bet) return reply.status(404).send({ error: "Palpite não encontrado" });
-    return reply.send({ bet, editHistory: bet.editHistory });
+    const { data: bet, error } = await supabase
+      .from("bets")
+      .select("*, bet_edits(predicted_home, predicted_away, edited_at)")
+      .eq("id", betId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error || !bet) return reply.status(404).send({ error: "Palpite não encontrado" });
+    return reply.send({
+      bet: toBet(bet),
+      editHistory: (bet.bet_edits ?? []).map((e: any) => ({
+        home: e.predicted_home,
+        away: e.predicted_away,
+        at:   e.edited_at,
+      })),
+    });
   });
 
-  // POST /api/bets — submit or update a bet
+  // POST /api/bets — submit or update
   app.post("/", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization) ?? users[0];
+    const user = await resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+
     const { matchId, predictedHome, predictedAway, groupId } = req.body as {
       matchId: string; predictedHome: number; predictedAway: number; groupId?: string;
     };
 
-    const match = matches.find(m => m.id === matchId);
+    const match = getAllMatches().find(m => m.id === matchId);
     if (!match) return reply.status(404).send({ error: "Jogo não encontrado" });
-
-    // Anti-cheat: lock bets once match starts
     if (match.status !== "scheduled")
       return reply.status(400).send({ error: "Palpites encerrados — jogo já iniciou" });
-
     if (predictedHome < 0 || predictedHome > 20 || predictedAway < 0 || predictedAway > 20)
       return reply.status(400).send({ error: "Placar inválido (0–20)" });
 
-    const existingIdx = bets.findIndex(b => b.matchId === matchId && b.userId === user.id);
+    const { data: existing } = await supabase
+      .from("bets")
+      .select("id, predicted_home, predicted_away")
+      .eq("user_id", user.id)
+      .eq("match_id", matchId)
+      .maybeSingle();
 
-    if (existingIdx !== -1) {
-      // Update: record to audit log
-      const old = bets[existingIdx];
-      old.editHistory.push({ home: old.predictedHome, away: old.predictedAway, at: new Date().toISOString() });
-      old.predictedHome = predictedHome;
-      old.predictedAway = predictedAway;
-      if (groupId) old.groupId = groupId;
-      return reply.send(old);
+    if (existing) {
+      // Save to edit history first
+      await supabase.from("bet_edits").insert({
+        bet_id:        existing.id,
+        predicted_home: existing.predicted_home,
+        predicted_away: existing.predicted_away,
+      });
+      // Update bet
+      const { data: updated } = await supabase
+        .from("bets")
+        .update({ predicted_home: predictedHome, predicted_away: predictedAway, group_id: groupId ?? null })
+        .eq("id", existing.id)
+        .select()
+        .single();
+      return reply.send(toBet(updated));
     }
 
-    const newBet: Bet = {
-      id: uuidv4(), userId: user.id, matchId,
-      groupId,
-      predictedHome, predictedAway,
-      points: null, status: "pending",
-      submittedAt: new Date().toISOString(),
-      editHistory: [],
-    };
-    bets.push(newBet);
-    return reply.status(201).send(newBet);
+    const { data: newBet, error } = await supabase
+      .from("bets")
+      .insert({
+        user_id:        user.id,
+        match_id:       matchId,
+        group_id:       groupId ?? null,
+        predicted_home: predictedHome,
+        predicted_away: predictedAway,
+        status:         "pending",
+      })
+      .select()
+      .single();
+
+    if (error) return reply.status(500).send({ error: error.message });
+    return reply.status(201).send(toBet(newBet));
   });
 
-  // POST /api/bets/settle/:matchId — settle all bets for a finished match (internal/admin)
+  // POST /api/bets/settle/:matchId — settle all bets (admin/internal)
   app.post("/settle/:matchId", async (req, reply) => {
     const { matchId } = req.params as { matchId: string };
-    const match = matches.find(m => m.id === matchId);
+    const match = getAllMatches().find(m => m.id === matchId);
     if (!match) return reply.status(404).send({ error: "Jogo não encontrado" });
     if (match.status !== "finished") return reply.status(400).send({ error: "Jogo não finalizado" });
     if (match.homeScore === null || match.awayScore === null)
       return reply.status(400).send({ error: "Placar não definido" });
 
-    const isFinal  = match.stage === "final";
-    const affected = bets.filter(b => b.matchId === matchId && b.status === "pending");
+    const { data: pendingBets } = await supabase
+      .from("bets")
+      .select("*, users(streak)")
+      .eq("match_id", matchId)
+      .eq("status", "pending");
 
-    affected.forEach(bet => {
-      const user = users.find(u => u.id === bet.userId);
-      if (!user) return;
+    if (!pendingBets?.length) return reply.send({ settled: 0 });
 
+    const isFinal = match.stage === "final";
+    let settled = 0;
+
+    for (const bet of pendingBets) {
+      const streak = bet.users?.streak ?? 0;
       const result = calculatePoints(
-        bet.predictedHome, bet.predictedAway,
+        bet.predicted_home, bet.predicted_away,
         match.homeScore!, match.awayScore!,
-        DEFAULT_RULES, isFinal, user.streak,
+        DEFAULT_RULES, isFinal, streak,
       );
 
-      bet.points          = result.points;
-      bet.status          = result.points > 0 ? "won" : "lost";
-      bet.isExact         = result.isExact;
-      bet.isCorrectOutcome= result.isCorrectOutcome;
-      bet.lockedAt        = new Date().toISOString();
+      await supabase.from("bets").update({
+        points:             result.points,
+        status:             result.points > 0 ? "won" : "lost",
+        is_exact:           result.isExact,
+        is_correct_outcome: result.isCorrectOutcome,
+        locked_at:          new Date().toISOString(),
+      }).eq("id", bet.id);
 
-      user.points      += result.points;
-      user.betsTotal   += 1;
-      if (result.points > 0) { user.betsCorrect += 1; user.streak += 1; }
-      else                    { user.streak = 0; }
-      if (result.isExact) user.betsExact += 1;
-      user.accuracy = user.betsTotal > 0
-        ? parseFloat(((user.betsCorrect / user.betsTotal) * 100).toFixed(1))
-        : 0;
-    });
+      // Update user stats
+      const wonBet = result.points > 0;
+      const { data: u } = await supabase.from("users")
+        .select("points, bets_total, bets_correct, bets_exact, streak")
+        .eq("id", bet.user_id)
+        .single();
+      if (u) {
+        const newStreak  = wonBet ? (u.streak + 1) : 0;
+        const newTotal   = u.bets_total + 1;
+        const newCorrect = u.bets_correct + (wonBet ? 1 : 0);
+        await supabase.from("users").update({
+          points:       u.points + result.points,
+          bets_total:   newTotal,
+          bets_correct: newCorrect,
+          bets_exact:   u.bets_exact + (result.isExact ? 1 : 0),
+          streak:       newStreak,
+          accuracy:     newTotal > 0 ? parseFloat(((newCorrect / newTotal) * 100).toFixed(1)) : 0,
+        }).eq("id", bet.user_id);
+      }
+
+      settled++;
+    }
 
     // Recalculate global ranks
-    [...users].sort((a, b) => b.points - a.points).forEach((u, i) => {
-      const prev = u.rank;
-      u.rank = i + 1;
-      u.rankVariation = prev - u.rank;
-    });
+    const { data: allUsers } = await supabase
+      .from("users")
+      .select("id, points")
+      .order("points", { ascending: false });
 
-    return reply.send({ settled: affected.length });
+    if (allUsers) {
+      const updates = allUsers.map((u, i) => supabase
+        .from("users")
+        .update({ rank: i + 1 })
+        .eq("id", u.id));
+      await Promise.all(updates);
+    }
+
+    return reply.send({ settled });
   });
 }
 
-function resolveUser(auth?: string) {
+function toBet(b: any) {
+  return {
+    id:               b.id,
+    userId:           b.user_id,
+    matchId:          b.match_id,
+    groupId:          b.group_id,
+    predictedHome:    b.predicted_home,
+    predictedAway:    b.predicted_away,
+    points:           b.points,
+    status:           b.status,
+    isExact:          b.is_exact,
+    isCorrectOutcome: b.is_correct_outcome,
+    submittedAt:      b.submitted_at,
+    lockedAt:         b.locked_at,
+    editHistory:      (b.bet_edits ?? []).map((e: any) => ({
+      home: e.predicted_home,
+      away: e.predicted_away,
+      at:   e.edited_at,
+    })),
+  };
+}
+
+async function resolveUser(auth?: string) {
   const token = auth?.startsWith("Bearer ") ? auth.slice(7) : (auth ?? "");
-  return getUserFromToken(token);
+  if (!token) return null;
+  const { data: { user } } = await supabase.auth.getUser(token);
+  return user ?? null;
 }

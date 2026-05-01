@@ -1,25 +1,50 @@
 import { FastifyInstance } from "fastify";
-import { notifications, getUserFromToken } from "../../../shared/database/seed";
+import { supabase } from "../../../shared/database/supabase";
 
 export async function notificationRoutes(app: FastifyInstance) {
+
   app.get("/", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
-    const userNotes = notifications
-      .filter(n => n.userId === user.id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return reply.send(userNotes);
+
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) return reply.status(500).send({ error: error.message });
+
+    return reply.send((data ?? []).map(n => ({
+      id:        n.id,
+      userId:    n.user_id,
+      type:      n.type,
+      title:     n.title,
+      body:      n.body,
+      read:      n.read,
+      matchId:   n.match_id,
+      createdAt: n.created_at,
+    })));
   });
 
   app.post("/read-all", async (req, reply) => {
-    const user = resolveUser(req.headers.authorization);
+    const user = await resolveUser(req.headers.authorization);
     if (!user) return reply.status(401).send({ error: "Não autenticado" });
-    notifications.filter(n => n.userId === user.id).forEach(n => { n.read = true; });
+
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
+
     return reply.send({ ok: true });
   });
 }
 
-function resolveUser(auth?: string) {
+async function resolveUser(auth?: string) {
   const token = auth?.startsWith("Bearer ") ? auth.slice(7) : (auth ?? "");
-  return getUserFromToken(token);
+  if (!token) return null;
+  const { data: { user } } = await supabase.auth.getUser(token);
+  return user ?? null;
 }

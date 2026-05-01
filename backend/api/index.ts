@@ -10,7 +10,6 @@ import { rankingRoutes }      from "../src/modules/rankings/controllers/ranking.
 import { authRoutes }         from "../src/modules/auth/controllers/auth.controller";
 import { groupRoutes }        from "../src/modules/groups/controllers/group.controller";
 import { notificationRoutes } from "../src/modules/users/controllers/notification.controller";
-import { seedDatabase }       from "../src/shared/database/seed";
 
 const app = Fastify({ logger: false });
 
@@ -29,7 +28,6 @@ async function build() {
   await app.register(groupRoutes,        { prefix: "/api/clubs"         });
   await app.register(notificationRoutes, { prefix: "/api/notifications" });
 
-  await seedDatabase();
   await app.ready();
 
   ready = true;
