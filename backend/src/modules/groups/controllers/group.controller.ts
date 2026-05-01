@@ -100,6 +100,45 @@ export async function groupRoutes(app: FastifyInstance) {
     msg.reactions[emoji] = (msg.reactions[emoji] ?? 0) + 1;
     return reply.send(msg.reactions);
   });
+
+  // Leave club
+  app.post("/:id/leave", async (req, reply) => {
+    const user = resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+    const { id } = req.params as { id: string };
+    const club   = clubs.find(c => c.id === id);
+    if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
+    if (club.ownerId === user.id)
+      return reply.status(400).send({ error: "Admin não pode sair — encerre o grupo ou transfira a propriedade" });
+    club.members = club.members.filter(m => m.userId !== user.id);
+    return reply.send({ ok: true });
+  });
+
+  // Delete (end) club — admin only
+  app.delete("/:id", async (req, reply) => {
+    const user = resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+    const { id } = req.params as { id: string };
+    const idx    = clubs.findIndex(c => c.id === id);
+    if (idx === -1) return reply.status(404).send({ error: "Clube não encontrado" });
+    if (clubs[idx].ownerId !== user.id)
+      return reply.status(403).send({ error: "Apenas o admin pode encerrar o grupo" });
+    clubs.splice(idx, 1);
+    return reply.send({ ok: true });
+  });
+
+  // Regenerate invite code — admin only
+  app.post("/:id/regen-code", async (req, reply) => {
+    const user = resolveUser(req.headers.authorization);
+    if (!user) return reply.status(401).send({ error: "Não autenticado" });
+    const { id } = req.params as { id: string };
+    const club   = clubs.find(c => c.id === id);
+    if (!club) return reply.status(404).send({ error: "Clube não encontrado" });
+    if (club.ownerId !== user.id)
+      return reply.status(403).send({ error: "Apenas o admin pode gerar novo código" });
+    club.inviteCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+    return reply.send({ inviteCode: club.inviteCode });
+  });
 }
 
 function enrichClub(c: Club) {
