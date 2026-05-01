@@ -3,6 +3,21 @@ import { supabase } from "../../../shared/database/supabase";
 
 export async function authRoutes(app: FastifyInstance) {
 
+  // Google OAuth URL
+  app.get("/google-url", async (req, reply) => {
+    const origin = (req.headers.origin as string) || process.env.APP_URL || "https://palpiteco-world-cup.vercel.app";
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}`,
+        skipBrowserRedirect: true,
+      },
+    });
+    if (error || !data.url)
+      return reply.status(500).send({ error: "Google OAuth não configurado. Ative o provider Google no Supabase Dashboard." });
+    return reply.send({ url: data.url });
+  });
+
   // Login
   app.post("/login", async (req, reply) => {
     const { email, password } = req.body as { email: string; password: string };
