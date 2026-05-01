@@ -1983,13 +1983,12 @@ async function checkOAuthCallback(){
   return false;
 }
 function setAuthErr(msg){const el=q('#auth-err');el.textContent=msg;el.classList.add('visible')}
-function clearAuthErr(){q('#auth-err').classList.remove('visible')}
+function clearAuthErr(){const el=q('#auth-err');if(el){el.textContent='';el.classList.remove('visible')}}
 function showAuth(){
   const auth=q('#auth-screen');
-  // auth fica sobre o hero (z-index 201 > 200) — hero serve de fundo
+  clearAuthErr();
   auth.style.display='block';
   auth.style.pointerEvents='auto';
-  // dois requestAnimationFrame garantem que o display foi aplicado antes da transição
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     auth.classList.add('visible');
     setTimeout(()=>q('#l-email')?.focus(),480);
