@@ -475,6 +475,20 @@ a{color:inherit;text-decoration:none}
 .auth-btn-google:active{transform:scale(0.97)}
 /* loading state */
 .auth-social-btn.loading{opacity:0.6;pointer-events:none}
+/* overlay de carregamento pós-OAuth */
+#oauth-loading{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#040a16;gap:20px;
+}
+#oauth-loading p{color:rgba(255,255,255,0.7);font-size:15px;font-weight:500;margin:0}
+.oauth-spinner{
+  width:44px;height:44px;border-radius:50%;
+  border:3px solid rgba(255,255,255,0.12);
+  border-top-color:#3b82f6;
+  animation:oauthSpin .75s linear infinite;
+}
+@keyframes oauthSpin{to{transform:rotate(360deg)}}
 .auth-social-btn.loading::after{
   content:'';width:14px;height:14px;border:2px solid currentColor;
   border-top-color:transparent;border-radius:50%;
@@ -1967,20 +1981,39 @@ async function checkOAuthCallback(){
   // Limpa o hash da URL sem recarregar
   history.replaceState(null,'',window.location.pathname);
   localStorage.removeItem('oauthRedirect');
+  // Esconde imediatamente hero e auth — exibe tela de carregamento antes da chamada async
+  q('#hero-screen').style.display='none';
+  q('#auth-screen').style.display='none';
+  q('#auth-screen').classList.remove('visible');
+  q('#app').style.display='flex';
+  showOAuthLoading(true);
   // Seta o token ANTES de chamar a API para que o Bearer seja enviado
   S.token=token;
   localStorage.setItem('token',token);
   if(refresh)localStorage.setItem('refreshToken',refresh);
   // Busca o perfil com o token já ativo
   const d=await api('GET','/auth/me');
+  showOAuthLoading(false);
   if(d&&d.id){
     onAuth(token,d);
     return true;
   }
-  // Token inválido — limpa e mostra tela de login
+  // Token inválido — limpa e volta para tela de login
   S.token='';
   localStorage.removeItem('token');
+  q('#app').style.display='none';
+  q('#hero-screen').style.display='flex';
   return false;
+}
+function showOAuthLoading(show){
+  let el=q('#oauth-loading');
+  if(show&&!el){
+    el=document.createElement('div');
+    el.id='oauth-loading';
+    el.innerHTML=`<div class="oauth-spinner"></div><p>Entrando com Google…</p>`;
+    document.body.appendChild(el);
+  }
+  if(el)el.style.display=show?'flex':'none';
 }
 function setAuthErr(msg){const el=q('#auth-err');el.textContent=msg;el.classList.add('visible')}
 function clearAuthErr(){const el=q('#auth-err');if(el){el.textContent='';el.classList.remove('visible')}}
