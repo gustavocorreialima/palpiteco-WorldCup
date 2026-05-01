@@ -1967,15 +1967,19 @@ async function checkOAuthCallback(){
   // Limpa o hash da URL sem recarregar
   history.replaceState(null,'',window.location.pathname);
   localStorage.removeItem('oauthRedirect');
-  // Valida o token e busca o perfil
+  // Seta o token ANTES de chamar a API para que o Bearer seja enviado
+  S.token=token;
+  localStorage.setItem('token',token);
+  if(refresh)localStorage.setItem('refreshToken',refresh);
+  // Busca o perfil com o token já ativo
   const d=await api('GET','/auth/me');
   if(d&&d.id){
-    S.token=token;
-    localStorage.setItem('token',token);
-    if(refresh)localStorage.setItem('refreshToken',refresh);
     onAuth(token,d);
     return true;
   }
+  // Token inválido — limpa e mostra tela de login
+  S.token='';
+  localStorage.removeItem('token');
   return false;
 }
 function setAuthErr(msg){const el=q('#auth-err');el.textContent=msg;el.classList.add('visible')}

@@ -78,8 +78,34 @@ export async function authRoutes(app: FastifyInstance) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return reply.status(401).send({ error: "Sessão inválida" });
 
-    const profile = await getProfile(user.id);
-    if (!profile) return reply.status(404).send({ error: "Perfil não encontrado" });
+    let profile = await getProfile(user.id);
+
+    // Se perfil não existe (ex: primeiro login via Google), cria automaticamente
+    if (!profile) {
+      const meta = user.user_metadata ?? {};
+      const displayName = meta.full_name ?? meta.name ?? user.email?.split("@")[0] ?? "Usuário";
+      const username = (meta.preferred_username ?? user.email?.split("@")[0] ?? `user_${Date.now()}`).replace(/[^a-z0-9_]/gi, "_").slice(0, 30);
+      const initials = displayName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+      const colors = ["#2ECC71","#3498DB","#9B59B6","#E74C3C","#F39C12","#1ABC9C","#16a34a"];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      // Garante username único
+      let finalUsername = username;
+      const { data: clash } = await supabase.from("users").select("id").eq("username", username).maybeSingle();
+      if (clash) finalUsername = `${username}_${Date.now().toString(36)}`;
+
+      await supabase.from("users").insert({
+        id: user.id,
+        username: finalUsername,
+        display_name: displayName,
+        email: user.email,
+        avatar_initials: initials || "U",
+        avatar_color: color,
+      });
+      profile = await getProfile(user.id);
+    }
+
+    if (!profile) return reply.status(500).send({ error: "Erro ao criar perfil" });
     return reply.send(profile);
   });
 
