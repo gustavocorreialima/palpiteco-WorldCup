@@ -175,6 +175,7 @@ a{color:inherit;text-decoration:none}
   align-items:center;justify-content:flex-end;
   background-color:#000;
   animation:hsFadeIn .8s ease both;
+  transition:opacity .4s ease;
 }
 @keyframes hsFadeIn{from{opacity:0}to{opacity:1}}
 
@@ -312,6 +313,7 @@ a{color:inherit;text-decoration:none}
 }
 #hero-btn::after{
   content:'';position:absolute;inset:0;
+  pointer-events:none;
   background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);
   background-size:300% 100%;background-position:350% 0;
   animation:hsBtnShine 3.5s 1.2s ease infinite;
@@ -326,24 +328,29 @@ a{color:inherit;text-decoration:none}
 #hero-btn:not(:active):hover{transform:translateY(-1px);box-shadow:0 12px 36px rgba(37,99,235,.60)}
 
 /* ══════════════════════════
-   AUTH — sobrepõe o hero sem trocar de tela
+   AUTH — sobrepõe o hero
 ══════════════════════════ */
 #auth-screen{
-  position:fixed;inset:0;z-index:190;
+  position:fixed;inset:0;z-index:201;
   display:none;pointer-events:none;
+  background-image:url('/hero.jpg');
+  background-size:cover;
+  /* desktop: mostra lado esquerdo da imagem (bola/gramado) */
+  background-position:30% 55%;
 }
-/* quando ativa: permite interação */
+@media(max-width:679px){
+  #auth-screen{background-position:center 55%}
+}
 #auth-screen.visible{pointer-events:auto}
 
-/* escurece a imagem ao entrar no modo login */
+/* overlay escuro que anima ao abrir */
 #auth-overlay{
-  position:absolute;inset:0;
-  background:rgba(0,0,0,0);
+  position:absolute;inset:0;pointer-events:none;
+  background:rgba(4,10,22,0);
   transition:background .5s ease;
-  pointer-events:none;
 }
 #auth-screen.visible #auth-overlay{
-  background:rgba(4,10,22,0.60);
+  background:rgba(4,10,22,0.65);
 }
 
 /* — MOBILE: card desliza de baixo — */
@@ -375,6 +382,16 @@ a{color:inherit;text-decoration:none}
 
 /* — DESKTOP: painel fixo à direita, desliza da direita — */
 @media(min-width:680px){
+  /* no desktop o overlay vira gradiente lateral (claro esquerda → escuro direita) */
+  #auth-screen.visible #auth-overlay{
+    background:linear-gradient(
+      105deg,
+      rgba(4,10,22,0.10) 0%,
+      rgba(4,10,22,0.20) 35%,
+      rgba(4,10,22,0.70) 58%,
+      rgba(4,10,22,0.95) 100%
+    );
+  }
   .auth-card{
     top:0;bottom:0;left:auto;right:0;
     width:400px;max-height:none;
@@ -390,18 +407,14 @@ a{color:inherit;text-decoration:none}
   .auth-card::before{display:none}
   #auth-screen.visible .auth-card{transform:translateX(0)}
 
-  /* texto hero à esquerda se mantém visível */
-  #auth-screen.visible #hero-panel{
-    opacity:0;pointer-events:none;transition:opacity .3s ease;
-  }
   /* texto de impacto desktop */
   #auth-headline{
     position:absolute;left:0;bottom:60px;
     width:calc(100% - 420px);
     z-index:3;
     padding:0 0 0 52px;
-    transform:translateY(10px);opacity:0;
-    transition:transform .5s .15s ease, opacity .5s .15s ease;
+    transform:translateY(12px);opacity:0;
+    transition:transform .5s .2s ease, opacity .5s .2s ease;
   }
   #auth-screen.visible #auth-headline{transform:translateY(0);opacity:1}
   #auth-headline h2{
@@ -1685,26 +1698,22 @@ async function doDemo(){
 function setAuthErr(msg){const el=q('#auth-err');el.textContent=msg;el.classList.add('visible')}
 function clearAuthErr(){q('#auth-err').classList.remove('visible')}
 function showAuth(){
-  // Esconde apenas o painel/badge do hero — a imagem de fundo permanece
-  const heroPanel=q('#hero-panel');
-  const heroBadge=q('#hero-badge');
-  if(heroPanel){heroPanel.style.transition='opacity .3s ease';heroPanel.style.opacity='0';heroPanel.style.pointerEvents='none';}
-  if(heroBadge){heroBadge.style.transition='opacity .3s ease';heroBadge.style.opacity='0';}
-
   const auth=q('#auth-screen');
+  // auth fica sobre o hero (z-index 201 > 200) — hero serve de fundo
   auth.style.display='block';
-  // Força reflow antes de adicionar a classe para disparar a transição CSS
-  auth.offsetHeight;
-  requestAnimationFrame(()=>{
+  auth.style.pointerEvents='auto';
+  // dois requestAnimationFrame garantem que o display foi aplicado antes da transição
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
     auth.classList.add('visible');
     setTimeout(()=>q('#l-email')?.focus(),480);
-  });
+  }));
 }
 function hideSplashAndAuth(){
   q('#hero-screen').style.display='none';
   const auth=q('#auth-screen');
   auth.classList.remove('visible');
   auth.style.display='none';
+  auth.style.pointerEvents='none';
   q('#app').style.display='flex';
 }
 function onAuth(token,user){
@@ -1771,19 +1780,15 @@ async function doLogout(){
   localStorage.removeItem('savedCreds');
   closeModal('logout');
   q('#app').style.display='none';
-  // Reseta auth sem animação
   const auth=q('#auth-screen');
   auth.classList.remove('visible');
   auth.style.display='none';
-  // Restaura hero
-  const heroPanel=q('#hero-panel');
-  const heroBadge=q('#hero-badge');
-  if(heroPanel){heroPanel.style.opacity='1';heroPanel.style.pointerEvents='';}
-  if(heroBadge){heroBadge.style.opacity='1';}
+  auth.style.pointerEvents='none';
+  // Volta ao hero com fade
   const hero=q('#hero-screen');
-  hero.style.display='flex';hero.style.opacity='0';
-  hero.style.transition='opacity .4s ease';
-  requestAnimationFrame(()=>{hero.style.opacity='1'});
+  hero.style.opacity='0';
+  hero.style.display='flex';
+  requestAnimationFrame(()=>{hero.style.opacity='1';});
 }
 
 /* ── BOOT ── */
