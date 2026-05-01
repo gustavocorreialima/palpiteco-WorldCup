@@ -330,82 +330,171 @@ a{color:inherit;text-decoration:none}
 ══════════════════════════ */
 #auth-screen{
   position:fixed;inset:0;z-index:190;
-  display:none;flex-direction:column;
-  align-items:center;justify-content:flex-end;
+  display:none;
   overflow:hidden;
-  background:#0a1a10;
+  background:#060d18;
 }
+
+/* imagem de fundo full-screen (igual ao hero) */
 #auth-bg{
   position:absolute;inset:0;
   background-image:url('/hero.jpg');
-  background-size:cover;background-position:center;
-  background-color:#0a1a10;
-  filter:blur(8px) brightness(.55);
-  transform:scale(1.08);
+  background-size:cover;
+  background-position:center 55%;
+  background-color:#060d18;
+  filter:brightness(0.65) saturate(1.1);
 }
+
+/* overlay escuro mais dramático à esquerda */
 #auth-overlay{
   position:absolute;inset:0;pointer-events:none;
-  background:rgba(0,0,0,.45);
+  background:linear-gradient(
+    105deg,
+    rgba(6,13,24,0.10) 0%,
+    rgba(6,13,24,0.15) 40%,
+    rgba(6,13,24,0.85) 62%,
+    rgba(6,13,24,0.97) 100%
+  );
 }
+
+/* bloco de texto de impacto à esquerda (só desktop) */
+#auth-headline{
+  display:none;
+  position:absolute;left:0;top:0;bottom:0;
+  width:52%;
+  z-index:2;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:0 0 60px 52px;
+}
+@media(min-width:700px){
+  #auth-headline{display:flex}
+  #auth-screen{align-items:center;justify-content:flex-end}
+}
+#auth-headline h2{
+  font-size:38px;font-weight:900;color:#fff;line-height:1.1;
+  letter-spacing:-1.5px;
+  text-shadow:0 4px 24px rgba(0,0,0,0.6);
+  margin-bottom:12px;
+}
+#auth-headline p{
+  font-size:14px;color:rgba(255,255,255,0.65);
+  line-height:1.6;max-width:320px;
+}
+
+/* card de formulário */
 .auth-card{
-  position:relative;z-index:2;
-  width:100%;max-width:420px;
-  padding:28px 24px 48px;
-  text-align:center;
-  background:rgba(15,23,42,.72);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:24px 24px 0 0;
-  animation:hsPanelUp .4s ease both;
+  position:relative;z-index:3;
+  /* mobile: bottom sheet */
+  width:100%;
+  max-height:92vh;
+  overflow-y:auto;
+  padding:28px 24px 40px;
+  background:rgba(8,15,30,0.82);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.10);
+  border-top:1px solid rgba(255,255,255,0.18);
+  border-radius:28px 28px 0 0;
+  animation:hsPanelUp .45s ease both;
+  /* custom scrollbar */
+  scrollbar-width:none;
 }
-.auth-header{text-align:center;margin-bottom:22px}
-.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px}
-.auth-header p{font-size:13px;color:rgba(255,255,255,.65);margin-top:4px}
+.auth-card::-webkit-scrollbar{display:none}
+
+/* desktop: painel fixo à direita */
+@media(min-width:700px){
+  .auth-card{
+    position:absolute;right:0;top:0;bottom:0;
+    width:min(420px,48%);
+    max-height:none;
+    border-radius:0;
+    border:none;
+    border-left:1px solid rgba(255,255,255,0.08);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:40px 36px;
+    animation:authSlideIn .45s ease both;
+  }
+  @keyframes authSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+}
+
+/* logo no topo do card */
+.auth-logo{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:24px;
+}
+.auth-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(37,99,235,0.4);
+  flex-shrink:0;
+}
+.auth-logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.auth-logo-sub{font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:.2px}
+
+.auth-header{margin-bottom:20px}
+.auth-header h1{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.6px;line-height:1.2}
+.auth-header p{font-size:13px;color:rgba(255,255,255,.5);margin-top:5px;line-height:1.5}
 
 .auth-social-btn{
-  width:100%;height:50px;border-radius:14px;
+  width:100%;height:48px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;gap:10px;
-  font-size:15px;font-weight:600;cursor:pointer;border:none;
-  transition:all 0.2s ease;margin-bottom:10px;
+  font-size:14px;font-weight:600;cursor:pointer;border:none;
+  transition:all 0.2s ease;margin-bottom:8px;
 }
-.auth-social-btn:hover{transform:scale(1.02)}
+.auth-social-btn:hover{opacity:.88}
 .auth-social-btn:active{transform:scale(0.97)}
-.auth-btn-google{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);backdrop-filter:blur(10px)}
-.auth-btn-apple{background:rgba(255,255,255,0.10);color:#fff;border:1px solid rgba(255,255,255,0.20);backdrop-filter:blur(10px)}
+.auth-btn-google{background:rgba(255,255,255,0.10);color:#fff;border:1px solid rgba(255,255,255,0.18)}
+.auth-btn-apple{background:rgba(255,255,255,0.07);color:#fff;border:1px solid rgba(255,255,255,0.13)}
 
 .auth-divider{
   display:flex;align-items:center;gap:12px;
-  color:rgba(255,255,255,0.4);font-size:12px;
+  color:rgba(255,255,255,0.35);font-size:11px;font-weight:600;letter-spacing:.5px;
   margin:14px 0;
 }
 .auth-divider::before,.auth-divider::after{
-  content:'';flex:1;height:1px;background:rgba(255,255,255,0.15);
+  content:'';flex:1;height:1px;background:rgba(255,255,255,0.10);
 }
 
 .tab-row{
-  display:flex;gap:4px;
-  background:rgba(255,255,255,0.08);
-  border-radius:var(--radius-sm);padding:4px;margin-bottom:20px;
-  border:1px solid rgba(255,255,255,0.1);
+  display:flex;gap:2px;
+  background:rgba(255,255,255,0.06);
+  border-radius:10px;padding:3px;margin-bottom:18px;
+  border:1px solid rgba(255,255,255,0.08);
 }
 .tab-btn{
   flex:1;padding:9px;border-radius:8px;
-  font-size:13px;font-weight:600;color:rgba(255,255,255,0.55);transition:var(--transition);
+  font-size:13px;font-weight:600;color:rgba(255,255,255,0.45);transition:var(--transition);
 }
-.tab-btn.active{background:rgba(255,255,255,0.15);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.tab-btn.active{background:rgba(255,255,255,0.14);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)}
 
+/* campo de formulário — escuro */
 .form-field{
   width:100%;padding:14px 16px;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:14px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;
   color:#fff;font-size:14px;margin-bottom:10px;
   transition:var(--transition);outline:none;
+  font-family:inherit;
 }
-.form-field:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.14);box-shadow:0 0 0 3px rgba(255,255,255,0.08)}
-.form-field::placeholder{color:rgba(255,255,255,0.4)}
+.form-field:focus{
+  border-color:rgba(99,163,255,0.6);
+  background:rgba(255,255,255,0.11);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.18);
+}
+.form-field::placeholder{color:rgba(255,255,255,0.30)}
 
-/* Variante para modais/fundos brancos */
+/* label flutuante acima do campo */
+.field-wrap{position:relative;margin-bottom:10px}
+.field-wrap label{
+  display:block;font-size:11px;font-weight:700;
+  color:rgba(255,255,255,0.45);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:5px;
+}
+.field-wrap .form-field{margin-bottom:0}
+
+/* Variante para modais/fundos claros */
 .modal-input{
   width:100%;padding:13px 16px;
   background:#F8FAFC;
@@ -429,11 +518,20 @@ select.modal-input{cursor:pointer;appearance:none;
 }
 .auth-error.visible{display:block}
 
-.auth-legal{
-  text-align:center;font-size:11px;color:rgba(255,255,255,0.35);
-  line-height:1.6;margin-top:14px;
+.auth-switch{
+  text-align:center;font-size:13px;color:rgba(255,255,255,0.45);margin-top:14px;
 }
-.auth-legal a{color:rgba(255,255,255,0.55);text-decoration:underline}
+.auth-switch button{
+  background:none;border:none;cursor:pointer;
+  color:rgba(99,163,255,0.9);font-weight:700;font-size:13px;
+  padding:0 4px;text-decoration:underline;text-underline-offset:2px;
+}
+
+.auth-legal{
+  text-align:center;font-size:10px;color:rgba(255,255,255,0.25);
+  line-height:1.6;margin-top:16px;
+}
+.auth-legal a{color:rgba(255,255,255,0.4);text-decoration:underline}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -1134,50 +1232,82 @@ select.modal-input{cursor:pointer;appearance:none;
 <div id="auth-screen">
   <div id="auth-bg"></div>
   <div id="auth-overlay"></div>
+
+  <!-- texto de impacto desktop (esquerda) -->
+  <div id="auth-headline">
+    <h2>Registre-se<br>e jogue grátis</h2>
+    <p>Faça palpites em todas as 104 partidas da Copa do Mundo, dispute com amigos e suba no ranking.</p>
+  </div>
+
+  <!-- painel do formulário -->
   <div class="auth-card">
-    <div class="auth-header">
-      <h1>Bolão 2026</h1>
-      <p>Copa do Mundo · Grupos de amigos</p>
+
+    <!-- logo -->
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" width="18" height="18"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      </div>
+      <div>
+        <div class="auth-logo-text">Bolão 2026</div>
+        <div class="auth-logo-sub">Copa do Mundo · FIFA WC</div>
+      </div>
     </div>
 
-    <button class="auth-social-btn auth-btn-google" onclick="toast('Google login em breve')">
-      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continuar com Google
-    </button>
+    <!-- título dinâmico -->
+    <div class="auth-header">
+      <h1 id="auth-title">Bem-vindo de volta</h1>
+      <p id="auth-sub">Entre na sua conta para continuar</p>
+    </div>
 
-    <button class="auth-social-btn auth-btn-apple" onclick="toast('Apple login em breve')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-      Continuar com Apple
-    </button>
+    <div id="auth-err" class="auth-error"></div>
+
+    <!-- LOGIN -->
+    <div id="tab-login">
+      <div class="field-wrap">
+        <label>E-mail</label>
+        <input id="l-email" class="form-field" type="email" placeholder="seu@email.com" autocomplete="email"/>
+      </div>
+      <div class="field-wrap">
+        <label>Senha</label>
+        <input id="l-pass" class="form-field" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%;height:50px;border-radius:12px;font-size:15px;font-weight:700;margin-top:4px" onclick="doLogin()">Entrar</button>
+      <div class="auth-switch">Não tem conta? <button onclick="switchTab('register')">Cadastre-se</button></div>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="tab-register" style="display:none">
+      <div class="field-wrap">
+        <label>Nome completo</label>
+        <input id="r-name" class="form-field" type="text" placeholder="João Silva" autocomplete="name"/>
+      </div>
+      <div class="field-wrap">
+        <label>@username</label>
+        <input id="r-user" class="form-field" type="text" placeholder="joaosilva"/>
+      </div>
+      <div class="field-wrap">
+        <label>E-mail</label>
+        <input id="r-email" class="form-field" type="email" placeholder="seu@email.com" autocomplete="email"/>
+      </div>
+      <div class="field-wrap">
+        <label>Senha</label>
+        <input id="r-pass" class="form-field" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%;height:50px;border-radius:12px;font-size:15px;font-weight:700;margin-top:4px" onclick="doRegister()">Criar conta</button>
+      <div class="auth-switch">Já tem conta? <button onclick="switchTab('login')">Entrar</button></div>
+    </div>
 
     <div class="auth-divider">OU</div>
 
-    <div class="tab-row">
-      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
-      <button class="tab-btn" onclick="switchTab('register')">Cadastrar</button>
-    </div>
-    <div id="auth-err" class="auth-error"></div>
-    <div id="tab-login">
-      <input id="l-email" class="form-field" type="email" placeholder="E-mail pessoal ou profissional" autocomplete="email"/>
-      <input id="l-pass" class="form-field" type="password" placeholder="Senha"/>
-      <button class="btn btn-primary" style="height:50px;border-radius:14px;font-size:15px" onclick="doLogin()">Continuar</button>
-    </div>
-    <div id="tab-register" style="display:none">
-      <input id="r-name" class="form-field" type="text" placeholder="Nome completo"/>
-      <input id="r-user" class="form-field" type="text" placeholder="@username"/>
-      <input id="r-email" class="form-field" type="email" placeholder="E-mail"/>
-      <input id="r-pass" class="form-field" type="password" placeholder="Senha"/>
-      <button class="btn btn-primary" style="height:50px;border-radius:14px;font-size:15px" onclick="doRegister()">Criar conta</button>
-    </div>
-
-    <button class="auth-social-btn" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.12);margin-top:8px" onclick="doDemo()">
+    <!-- Demo -->
+    <button class="auth-social-btn" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.12)" onclick="doDemo()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Entrar como demonstração
+      Entrar como convidado
     </button>
 
     <div class="auth-legal">
-      Ao continuar, você concorda com os <a href="#">Termos de Uso</a> e reconhece a <a href="#">Política de Privacidade</a>.<br><br>
-      Este app não envolve apostas financeiras de nenhum tipo. Apenas diversão entre amigos.
+      Ao continuar, você concorda com os <a href="#">Termos de Uso</a>.<br>
+      Nenhuma aposta financeira envolvida — só diversão entre amigos.
     </div>
   </div>
 </div>
@@ -1541,8 +1671,14 @@ function switchTab(t){
   ['login','register'].forEach(k=>{
     document.getElementById('tab-'+k).style.display=k===t?'':'none';
   });
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>
-    b.classList.toggle('active',(t==='login')===!i));
+  const title=q('#auth-title');const sub=q('#auth-sub');
+  if(t==='login'){
+    if(title)title.textContent='Bem-vindo de volta';
+    if(sub)sub.textContent='Entre na sua conta para continuar';
+  }else{
+    if(title)title.textContent='Criar sua conta';
+    if(sub)sub.textContent='Comece a jogar o Bolão 2026 grátis';
+  }
   clearAuthErr();
 }
 async function doLogin(){
