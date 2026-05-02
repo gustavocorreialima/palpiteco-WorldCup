@@ -182,23 +182,41 @@ a{color:inherit;text-decoration:none}
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;
   align-items:center;justify-content:flex-end;
-  background-color:#0a0f1e;
+  background-color:#000;
+  animation:hsFadeIn .8s ease both;
+  transition:opacity .4s ease;
   overflow:hidden;
 }
+@keyframes hsFadeIn{from{opacity:0}to{opacity:1}}
 
-/* imagem de fundo */
+/* imagem de fundo com Ken Burns sutil */
 #hero-bg{
   position:absolute;
-  inset:0;
-  background-color:#0a0f1e;
-  overflow:hidden;
+  /* expande levemente além do container para evitar bordas durante transform */
+  inset:-5%;
+  background-image:url('/hero.jpg');
+  background-size:cover;
+  background-position:center 55%;
+  background-repeat:no-repeat;
+  background-color:#111;
+  filter:brightness(0.88) contrast(1.08) saturate(1.15);
+  animation:heroKenBurns 22s ease-in-out infinite alternate;
+  transform-origin:center center;
 }
-#hero-bg img{
-  width:100%;height:100%;
-  object-fit:cover;
-  object-position:center 30%;
-  filter:brightness(0.82) contrast(1.08) saturate(1.1);
-  display:block;
+@keyframes heroKenBurns{
+  0%  {transform:scale(1.00) translateY(0%)}
+  50% {transform:scale(1.04) translateY(-1%)}
+  100%{transform:scale(1.02) translateY(1%)}
+}
+@media(min-aspect-ratio:16/10){
+  #hero-bg{
+    background-position:center 40%;
+    animation:heroKenBurnsLandscape 22s ease-in-out infinite alternate;
+  }
+  @keyframes heroKenBurnsLandscape{
+    0%  {transform:scale(1.00)}
+    100%{transform:scale(1.04) translateX(-1%)}
+  }
 }
 
 /* overlay multicamada: escurece topo e base para profundidade */
@@ -231,9 +249,10 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(255,255,255,0.18);
   border-radius:100px;
   padding:7px 16px;
+  animation:heroBadgeIn .7s .3s ease both;
   white-space:nowrap;
 }
-
+@keyframes heroBadgeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 #hero-badge span{font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.5px;white-space:nowrap}
 #hero-badge .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:heroDotPulse 1.8s ease-in-out infinite}
 @keyframes heroDotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(0.8)}}
@@ -251,8 +270,10 @@ a{color:inherit;text-decoration:none}
   border-top:1px solid rgba(255,255,255,0.22);
   border-radius:24px;
   box-shadow:0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset;
+  animation:hsPanelUp .7s .2s ease both;
   width:calc(100% - 40px);max-width:420px;
 }
+@keyframes hsPanelUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
 /* linha decorativa de cor no topo do painel */
 #hero-panel::before{
@@ -337,7 +358,7 @@ a{color:inherit;text-decoration:none}
 #auth-hero-img{
   position:absolute;top:0;left:0;right:0;
   height:52%;
-  background-image:url('/auth-hero.png');
+  background-image:url('/auth-hero.jpg');
   background-size:cover;
   background-position:center 30%;
   flex-shrink:0;
@@ -373,11 +394,11 @@ a{color:inherit;text-decoration:none}
   display:flex;align-items:center;gap:8px;margin-bottom:10px;
 }
 #auth-hero-text .auth-brand-badge{
-  background:linear-gradient(135deg,#1d4ed8,#2563EB);
+  background:linear-gradient(135deg,#d97706,#f59e0b);
   border-radius:8px;padding:4px 8px;
   font-size:10px;font-weight:800;color:#fff;
   letter-spacing:1px;text-transform:uppercase;
-  box-shadow:0 2px 10px rgba(37,99,235,0.5);
+  box-shadow:0 2px 10px rgba(245,158,11,0.5);
 }
 #auth-hero-text .auth-brand-name{
   font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);
@@ -474,9 +495,9 @@ a{color:inherit;text-decoration:none}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .auth-logo-icon{
   width:36px;height:36px;border-radius:10px;
-  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  background:linear-gradient(135deg,#d97706,#f59e0b);
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(37,99,235,0.45);flex-shrink:0;
+  box-shadow:0 4px 16px rgba(245,158,11,0.4);flex-shrink:0;
 }
 .auth-logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
 .auth-logo-sub{font-size:11px;color:rgba(255,255,255,0.35)}
@@ -490,10 +511,10 @@ a{color:inherit;text-decoration:none}
 .auth-submit-btn{
   position:relative;overflow:hidden;
   width:100%;height:52px;border-radius:14px;
-  background:linear-gradient(135deg,#1d4ed8 0%,#2563EB 50%,#3b82f6 100%);
+  background:linear-gradient(135deg,#16a34a 0%,#15803d 50%,#166534 100%);
   color:#fff;font-size:15px;font-weight:800;
   border:none;cursor:pointer;letter-spacing:0.2px;font-family:inherit;
-  box-shadow:0 6px 24px rgba(37,99,235,0.50), 0 2px 6px rgba(37,99,235,0.25);
+  box-shadow:0 6px 24px rgba(22,163,74,0.45), 0 2px 6px rgba(22,163,74,0.25);
   transition:transform .15s ease, box-shadow .15s ease;
   display:flex;align-items:center;justify-content:center;gap:8px;
   margin-bottom:0;
@@ -512,8 +533,8 @@ a{color:inherit;text-decoration:none}
   0%{background-position:350% 0}
   40%,100%{background-position:-100% 0}
 }
-.auth-submit-btn:active{transform:scale(0.97);box-shadow:0 3px 12px rgba(37,99,235,0.3)}
-.auth-submit-btn:hover:not(:active){transform:translateY(-1px);box-shadow:0 10px 32px rgba(37,99,235,0.60)}
+.auth-submit-btn:active{transform:scale(0.97);box-shadow:0 3px 12px rgba(22,163,74,0.3)}
+.auth-submit-btn:hover:not(:active){transform:translateY(-1px);box-shadow:0 10px 32px rgba(22,163,74,0.55)}
 .auth-submit-btn.loading{opacity:0.65;pointer-events:none}
 .auth-submit-btn span{position:relative;z-index:1}
 
@@ -545,7 +566,7 @@ a{color:inherit;text-decoration:none}
 .oauth-spinner{
   width:44px;height:44px;border-radius:50%;
   border:3px solid rgba(255,255,255,0.12);
-  border-top-color:#3b82f6;
+  border-top-color:#f59e0b;
   animation:oauthSpin .75s linear infinite;
 }
 @keyframes oauthSpin{to{transform:rotate(360deg)}}
@@ -580,9 +601,9 @@ a{color:inherit;text-decoration:none}
   outline:none;font-family:inherit;
 }
 .form-field:focus{
-  border-color:rgba(37,99,235,0.7);
+  border-color:rgba(245,158,11,0.6);
   background:rgba(255,255,255,0.10);
-  box-shadow:0 0 0 3px rgba(37,99,235,0.18);
+  box-shadow:0 0 0 3px rgba(245,158,11,0.15);
 }
 .form-field::placeholder{color:rgba(255,255,255,0.22)}
 
@@ -616,7 +637,7 @@ select.modal-input{cursor:pointer;appearance:none;
 }
 .auth-switch button{
   background:none;border:none;cursor:pointer;
-  color:#60a5fa;font-weight:700;font-size:13px;
+  color:#f59e0b;font-weight:700;font-size:13px;
   padding:0 4px;text-decoration:none;
 }
 .auth-switch button:hover{text-decoration:underline;text-underline-offset:2px}
@@ -1482,7 +1503,7 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
 
 <!-- ════════ HERO (tela de entrada) ════════ -->
 <div id="hero-screen">
-  <div id="hero-bg"><img src="/auth-hero.png" alt="" loading="eager" fetchpriority="high"/></div>
+  <div id="hero-bg"></div>
   <div id="hero-overlay"></div>
   <div id="hero-vignette"></div>
   <div id="hero-badge">
@@ -2114,7 +2135,6 @@ async function tryAutoLogin(){
 
   if(!S.token){
     q('#app').style.display='none';
-    q('#hero-screen').style.display='flex';
     return;
   }
   q('#hero-screen').style.display='none';
