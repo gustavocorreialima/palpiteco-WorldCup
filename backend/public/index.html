@@ -179,36 +179,29 @@ a{color:inherit;text-decoration:none}
    PRE-LOGIN SCREEN — imagem + bottom sheet
 ══════════════════════════════════════════ */
 
-/* Tela raiz — sempre visível, fundo escuro seguro */
 #hero-screen{
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;
-  background:#0a0f1e;
+  background-color:#0a0f1e;
+  background-image:url('/auth-hero.jpg');
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
   overflow:hidden;
 }
 
-/* Imagem de fundo — elemento <img> para garantir carregamento */
-#hero-bg{
-  position:absolute;inset:0;
-  z-index:0;
-}
-#hero-bg img{
-  width:100%;height:100%;
-  object-fit:cover;
-  object-position:center 35%;
-  display:block;
-}
+/* <img> dentro de #hero-bg não é mais necessário — mantido oculto por segurança */
+#hero-bg{display:none}
 
-/* Overlay gradiente: transparente no topo, escuro na base */
+/* Overlay gradiente */
 #hero-overlay{
   position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(
     to bottom,
-    rgba(0,0,0,0.18) 0%,
-    rgba(0,0,0,0.10) 30%,
-    rgba(0,0,0,0.50) 60%,
-    rgba(0,0,0,0.88) 85%,
-    rgba(0,0,0,0.97) 100%
+    rgba(5,10,20,0.35) 0%,
+    rgba(5,10,20,0.15) 35%,
+    rgba(5,10,20,0.55) 65%,
+    rgba(5,10,20,0.95) 100%
   );
 }
 
@@ -216,15 +209,12 @@ a{color:inherit;text-decoration:none}
 #hero-content{
   position:absolute;inset:0;z-index:2;
   display:flex;flex-direction:column;
-  justify-content:flex-end;
-  padding:0 24px max(36px, calc(env(safe-area-inset-bottom) + 28px));
+  justify-content:space-between;
+  padding:max(52px, calc(env(safe-area-inset-top) + 20px)) 24px calc(36px + env(safe-area-inset-bottom));
 }
 
 /* Logo no topo */
 #hero-logo{
-  position:absolute;
-  top:max(44px, calc(env(safe-area-inset-top) + 16px));
-  left:24px;
   display:flex;align-items:center;gap:10px;
 }
 #hero-logo-icon{
@@ -252,7 +242,7 @@ a{color:inherit;text-decoration:none}
 }
 #hero-subtitle{
   font-size:15px;color:rgba(255,255,255,0.62);
-  line-height:1.55;margin-bottom:40px;
+  line-height:1.55;margin-bottom:28px;
   text-shadow:0 1px 8px rgba(0,0,0,0.5);
   max-width:320px;
 }
@@ -263,7 +253,7 @@ a{color:inherit;text-decoration:none}
 /* Botão CTA */
 #hero-btn{
   position:relative;overflow:hidden;
-  width:100%;height:56px;border-radius:18px;
+  width:100%;height:64px;border-radius:22px;
   background:linear-gradient(135deg,#1d4ed8 0%,#2563EB 55%,#3b82f6 100%);
   color:#fff;font-size:17px;font-weight:800;
   border:none;cursor:pointer;letter-spacing:0.2px;
