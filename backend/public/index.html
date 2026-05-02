@@ -183,24 +183,36 @@ a{color:inherit;text-decoration:none}
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;
   background-color:#0a0f1e;
-  background-image:url('/auth-hero.jpg');
-  background-size:cover;
-  background-position:center center;
-  background-repeat:no-repeat;
   overflow:hidden;
 }
 
-/* <img> dentro de #hero-bg não é mais necessário — mantido oculto por segurança */
-#hero-bg{display:none}
+/* Camada de imagem de fundo */
+#hero-bg{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+  overflow:hidden;
+}
+#hero-bg img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:42% 85%;
+}
+@media(max-width:768px){
+  #hero-bg img{object-position:40% 88%}
+}
+@media(min-width:1600px){
+  #hero-bg img{object-position:45% 80%}
+}
 
 /* Overlay gradiente */
 #hero-overlay{
   position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(
     to bottom,
-    rgba(5,10,20,0.35) 0%,
-    rgba(5,10,20,0.15) 35%,
-    rgba(5,10,20,0.55) 65%,
+    rgba(5,10,20,0.20) 0%,
+    rgba(5,10,20,0.30) 40%,
+    rgba(5,10,20,0.75) 75%,
     rgba(5,10,20,0.95) 100%
   );
 }
