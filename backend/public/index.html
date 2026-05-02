@@ -175,266 +175,172 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(37,99,235,0.15);
 }
 
-/* ══════════════════════════════
-   HERO SCREEN (tela de entrada)
-══════════════════════════════ */
+/* ══════════════════════════════════════════
+   PRE-LOGIN SCREEN — imagem + bottom sheet
+══════════════════════════════════════════ */
+
+/* Tela raiz — sempre visível, fundo escuro seguro */
 #hero-screen{
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-end;
-  background-color:#000;
-  animation:hsFadeIn .8s ease both;
-  transition:opacity .4s ease;
+  background:#0a0f1e;
   overflow:hidden;
 }
-@keyframes hsFadeIn{from{opacity:0}to{opacity:1}}
 
-/* imagem de fundo com Ken Burns sutil */
+/* Imagem de fundo — elemento <img> para garantir carregamento */
 #hero-bg{
-  position:absolute;
-  /* expande levemente além do container para evitar bordas durante transform */
-  inset:-5%;
-  background-image:url('/hero.jpg');
-  background-size:cover;
-  background-position:center 55%;
-  background-repeat:no-repeat;
-  background-color:#111;
-  filter:brightness(0.88) contrast(1.08) saturate(1.15);
-  animation:heroKenBurns 22s ease-in-out infinite alternate;
-  transform-origin:center center;
+  position:absolute;inset:0;
+  z-index:0;
 }
-@keyframes heroKenBurns{
-  0%  {transform:scale(1.00) translateY(0%)}
-  50% {transform:scale(1.04) translateY(-1%)}
-  100%{transform:scale(1.02) translateY(1%)}
-}
-@media(min-aspect-ratio:16/10){
-  #hero-bg{
-    background-position:center 40%;
-    animation:heroKenBurnsLandscape 22s ease-in-out infinite alternate;
-  }
-  @keyframes heroKenBurnsLandscape{
-    0%  {transform:scale(1.00)}
-    100%{transform:scale(1.04) translateX(-1%)}
-  }
+#hero-bg img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 25%;
+  display:block;
 }
 
-/* overlay multicamada: escurece topo e base para profundidade */
+/* Overlay gradiente: transparente no topo, escuro na base */
 #hero-overlay{
-  position:absolute;inset:0;pointer-events:none;
-  background:
-    linear-gradient(to bottom,
-      rgba(0,0,0,0.45) 0%,
-      rgba(0,0,0,0.05) 35%,
-      rgba(0,0,0,0.10) 55%,
-      rgba(0,0,0,0.72) 82%,
-      rgba(0,0,0,0.88) 100%
-    );
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.18) 0%,
+    rgba(0,0,0,0.10) 30%,
+    rgba(0,0,0,0.50) 60%,
+    rgba(0,0,0,0.88) 85%,
+    rgba(0,0,0,0.97) 100%
+  );
 }
 
-/* brilho vinheta nas laterais */
-#hero-vignette{
-  position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+/* Conteúdo hero — logo + título + botão */
+#hero-content{
+  position:absolute;inset:0;z-index:2;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;
+  padding:0 24px max(36px, calc(env(safe-area-inset-bottom) + 28px));
 }
 
-/* badge copa no topo */
-#hero-badge{
+/* Logo no topo */
+#hero-logo{
   position:absolute;
   top:max(44px, calc(env(safe-area-inset-top) + 16px));
-  left:50%;transform:translateX(-50%);z-index:2;
-  display:flex;align-items:center;gap:8px;
-  background:rgba(255,255,255,0.10);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:100px;
-  padding:7px 16px;
-  animation:heroBadgeIn .7s .3s ease both;
-  white-space:nowrap;
+  left:24px;
+  display:flex;align-items:center;gap:10px;
 }
-@keyframes heroBadgeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-#hero-badge span{font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.5px;white-space:nowrap}
-#hero-badge .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:heroDotPulse 1.8s ease-in-out infinite}
-@keyframes heroDotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(0.8)}}
-
-/* painel de entrada */
-#hero-panel{
-  position:relative;z-index:2;
-  margin:0 20px;
-  margin-bottom:max(32px, calc(env(safe-area-inset-bottom) + 24px));
-  padding:24px 24px 26px;
-  text-align:center;
-  background:rgba(5,8,20,0.55);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  border:1px solid rgba(255,255,255,0.14);
-  border-top:1px solid rgba(255,255,255,0.22);
-  border-radius:24px;
-  box-shadow:0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset;
-  animation:hsPanelUp .7s .2s ease both;
-  width:calc(100% - 40px);max-width:420px;
+#hero-logo-icon{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(37,99,235,0.45);
 }
-@keyframes hsPanelUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+#hero-logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px;text-shadow:0 1px 8px rgba(0,0,0,0.5)}
 
-/* linha decorativa de cor no topo do painel */
-#hero-panel::before{
-  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:60%;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,rgba(99,163,255,0.8),transparent);
+/* Textos centrais */
+#hero-tagline{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,0.55);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
 }
-
-#hero-panel h1{
-  font-size:30px;font-weight:900;color:#fff;
-  letter-spacing:-1px;line-height:1.1;margin-bottom:8px;
-  text-shadow:0 2px 20px rgba(0,0,0,0.7);
-  background:linear-gradient(135deg,#fff 60%,rgba(147,197,253,0.9) 100%);
+#hero-title{
+  font-size:34px;font-weight:900;color:#fff;
+  line-height:1.1;letter-spacing:-1px;
+  margin-bottom:10px;
+  text-shadow:0 2px 24px rgba(0,0,0,0.7);
+}
+#hero-title span{
+  background:linear-gradient(135deg,#fff 50%,rgba(147,197,253,0.85) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-#hero-panel p{
-  font-size:14px;color:rgba(255,255,255,0.72);
-  margin-bottom:22px;line-height:1.5;
-  text-shadow:0 1px 6px rgba(0,0,0,0.5);
+#hero-subtitle{
+  font-size:15px;color:rgba(255,255,255,0.62);
+  line-height:1.55;margin-bottom:32px;
+  text-shadow:0 1px 8px rgba(0,0,0,0.5);
+  max-width:320px;
 }
 
-/* estatísticas rápidas */
+/* Stats rápidos */
 #hero-stats{
-  display:flex;justify-content:center;gap:0;
-  margin-bottom:22px;
-  border:1px solid rgba(255,255,255,0.10);
-  border-radius:14px;
-  overflow:hidden;
+  display:flex;gap:0;
+  margin-bottom:28px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:16px;overflow:hidden;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .hero-stat{
-  flex:1;padding:10px 8px;
+  flex:1;padding:11px 8px;text-align:center;
   border-right:1px solid rgba(255,255,255,0.10);
 }
 .hero-stat:last-child{border-right:none}
 .hero-stat-val{font-size:18px;font-weight:800;color:#fff;line-height:1}
-.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px}
+.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.45);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px}
 
-/* botão Começar */
+/* Botão CTA */
 #hero-btn{
   position:relative;overflow:hidden;
-  width:100%;height:52px;border-radius:16px;
-  background:linear-gradient(135deg,#1d4ed8 0%,#2563EB 45%,#3b82f6 100%);
-  color:#fff;font-size:16px;font-weight:800;
-  border:none;cursor:pointer;letter-spacing:0.3px;
-  box-shadow:0 8px 28px rgba(37,99,235,.50), 0 2px 6px rgba(37,99,235,.30);
+  width:100%;height:56px;border-radius:18px;
+  background:linear-gradient(135deg,#16a34a 0%,#22c55e 55%,#4ade80 100%);
+  color:#fff;font-size:17px;font-weight:800;
+  border:none;cursor:pointer;letter-spacing:0.2px;
+  box-shadow:0 8px 32px rgba(34,197,94,0.50),0 2px 8px rgba(34,197,94,0.25);
   transition:transform .15s ease,box-shadow .15s ease;
-  display:flex;align-items:center;justify-content:center;gap:8px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
 }
 #hero-btn::before{
-  content:'';position:absolute;inset:0;border-radius:16px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.00) 100%);
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0.16) 0%,transparent 60%);
 }
 #hero-btn::after{
   content:'';position:absolute;inset:0;
-  pointer-events:none;
-  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%);
   background-size:300% 100%;background-position:350% 0;
   animation:hsBtnShine 3.5s 1.2s ease infinite;
 }
-@keyframes hsBtnShine{
-  0%{background-position:350% 0}
-  45%,100%{background-position:-100% 0}
-}
-#hero-btn svg{position:relative;z-index:1}
-#hero-btn span{position:relative;z-index:1}
-#hero-btn:active{transform:scale(0.97);box-shadow:0 4px 14px rgba(37,99,235,.30)}
-#hero-btn:not(:active):hover{transform:translateY(-1px);box-shadow:0 12px 36px rgba(37,99,235,.60)}
+@keyframes hsBtnShine{0%{background-position:350% 0}45%,100%{background-position:-100% 0}}
+#hero-btn svg,#hero-btn span{position:relative;z-index:1}
+#hero-btn:active{transform:scale(0.97);box-shadow:0 4px 14px rgba(34,197,94,0.35)}
+#hero-btn:hover:not(:active){transform:translateY(-1px);box-shadow:0 12px 40px rgba(34,197,94,0.60)}
+
+/* Dot pulsante do badge */
+#hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;display:inline-block;margin-right:6px;animation:heroDotPulse 1.8s ease-in-out infinite}
+@keyframes heroDotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(0.8)}}
 
 /* ══════════════════════════════════════
-   AUTH SCREEN — novo design premium Copa
+   AUTH OVERLAY — bottom sheet sobre hero
 ══════════════════════════════════════ */
+
+/* Overlay escurecedor — aparece por cima do hero quando auth abre */
 #auth-screen{
   position:fixed;inset:0;z-index:201;
   display:none;pointer-events:none;
-  background:#030712;
-  overflow:hidden;
-  flex-direction:column;
+  background:transparent;
 }
 #auth-screen.visible{pointer-events:auto}
 
-/* — imagem hero no topo — */
-#auth-hero-img{
-  position:absolute;top:0;left:0;right:0;
-  height:52%;
-  background-image:url('/auth-hero.jpg');
-  background-size:cover;
-  background-position:center 30%;
-  flex-shrink:0;
+/* dim do fundo ao abrir o bottom sheet */
+#auth-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0);
+  transition:background .4s ease;
+  pointer-events:none;
 }
-/* gradiente escurece para baixo, criando transição suave para o card */
-#auth-hero-img::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(
-    to bottom,
-    rgba(3,7,18,0.10) 0%,
-    rgba(3,7,18,0.35) 55%,
-    rgba(3,7,18,0.92) 80%,
-    rgba(3,7,18,1.00) 100%
-  );
-}
+#auth-screen.visible #auth-overlay{background:rgba(0,0,0,0.55)}
 
-/* texto sobre a imagem */
-#auth-hero-text{
-  position:absolute;
-  top:0;left:0;right:0;
-  height:52%;
-  z-index:2;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-end;
-  padding:0 24px 24px;
-  text-align:center;
-  opacity:0;transform:translateY(10px);
-  transition:opacity .5s .1s ease, transform .5s .1s ease;
-}
-#auth-screen.visible #auth-hero-text{opacity:1;transform:translateY(0)}
-
-#auth-hero-text .auth-brand{
-  display:flex;align-items:center;gap:8px;margin-bottom:10px;
-}
-#auth-hero-text .auth-brand-badge{
-  background:linear-gradient(135deg,#d97706,#f59e0b);
-  border-radius:8px;padding:4px 8px;
-  font-size:10px;font-weight:800;color:#fff;
-  letter-spacing:1px;text-transform:uppercase;
-  box-shadow:0 2px 10px rgba(245,158,11,0.5);
-}
-#auth-hero-text .auth-brand-name{
-  font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);
-  letter-spacing:0.5px;
-}
-#auth-hero-text h1{
-  font-size:26px;font-weight:900;color:#fff;
-  letter-spacing:-0.8px;line-height:1.15;
-  margin-bottom:8px;
-  text-shadow:0 2px 20px rgba(0,0,0,0.8);
-}
-#auth-hero-text p{
-  font-size:13px;color:rgba(255,255,255,0.55);
-  line-height:1.55;max-width:300px;
-}
-
-/* — CARD glassmorphism — */
+/* — BOTTOM SHEET — */
 .auth-card{
   position:absolute;
   bottom:0;left:0;right:0;
   z-index:4;
-  max-height:72dvh;
+  max-height:85dvh;
   overflow-y:auto;
   scrollbar-width:none;
-  padding:8px 22px calc(28px + env(safe-area-inset-bottom));
-  background:rgba(8,14,30,0.82);
-  backdrop-filter:blur(32px) saturate(1.4);
-  -webkit-backdrop-filter:blur(32px) saturate(1.4);
+  padding:8px 24px calc(32px + env(safe-area-inset-bottom));
+  background:rgba(8,14,30,0.90);
+  backdrop-filter:blur(40px) saturate(1.6);
+  -webkit-backdrop-filter:blur(40px) saturate(1.6);
   border-top:1px solid rgba(255,255,255,0.10);
   border-radius:28px 28px 0 0;
   transform:translateY(100%);
-  transition:transform .5s cubic-bezier(.32,.72,0,1);
-  box-shadow:
-    0 -1px 0 rgba(255,255,255,0.06),
-    0 -32px 80px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition:transform .38s cubic-bezier(.32,.72,0,1);
+  box-shadow:0 -2px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 .auth-card::-webkit-scrollbar{display:none}
 #auth-screen.visible .auth-card{transform:translateY(0)}
@@ -444,34 +350,15 @@ a{color:inherit;text-decoration:none}
   content:'';display:block;
   width:36px;height:4px;border-radius:2px;
   background:rgba(255,255,255,0.14);
-  margin:0 auto 18px;
+  margin:0 auto 20px;
 }
 
-/* — DESKTOP: painel direito — */
+/* — DESKTOP: painel lateral direito — */
 @media(min-width:680px){
-  #auth-hero-img{
-    height:100%;
-    background-position:20% center;
+  #auth-overlay{transition:background .4s ease}
+  #auth-screen.visible #auth-overlay{
+    background:linear-gradient(to right,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.6) 60%,rgba(0,0,0,0.85) 100%);
   }
-  #auth-hero-img::after{
-    background:linear-gradient(
-      to right,
-      rgba(3,7,18,0.05) 0%,
-      rgba(3,7,18,0.30) 45%,
-      rgba(3,7,18,0.92) 70%,
-      rgba(3,7,18,1.00) 100%
-    );
-  }
-  #auth-hero-text{
-    height:100%;
-    align-items:flex-start;
-    justify-content:flex-end;
-    padding:0 0 80px 52px;
-    text-align:left;
-    left:0;right:420px;
-  }
-  #auth-hero-text h1{font-size:34px}
-  #auth-hero-text p{font-size:14px;max-width:320px}
   .auth-card{
     top:0;bottom:0;left:auto;right:0;
     width:400px;max-height:none;
@@ -480,16 +367,14 @@ a{color:inherit;text-decoration:none}
     padding:0 36px;
     display:flex;flex-direction:column;justify-content:center;
     transform:translateX(100%);
-    transition:transform .5s cubic-bezier(.32,.72,0,1);
+    transition:transform .38s cubic-bezier(.32,.72,0,1);
     box-shadow:-24px 0 80px rgba(0,0,0,0.5);
-    max-height:none;overflow-y:auto;
+    overflow-y:auto;
   }
   .auth-card::before{display:none}
   #auth-screen.visible .auth-card{transform:translateX(0)}
 }
-@media(max-width:679px){
-  #auth-headline{display:none}
-}
+@media(max-width:679px){#auth-headline{display:none}}
 
 /* — LOGO dentro do card — */
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
@@ -1501,54 +1386,50 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
 </head>
 <body>
 
-<!-- ════════ HERO (tela de entrada) ════════ -->
+<!-- ════════ PRE-LOGIN + AUTH (tela unificada) ════════ -->
 <div id="hero-screen">
-  <div id="hero-bg"></div>
-  <div id="hero-overlay"></div>
-  <div id="hero-vignette"></div>
-  <div id="hero-badge">
-    <div class="dot"></div>
-    <span>Copa do Mundo 2026</span>
+
+  <!-- Imagem de fundo — <img> com fetchpriority para garantir carregamento imediato -->
+  <div id="hero-bg">
+    <img src="/auth-hero.jpg" alt="" fetchpriority="high" loading="eager" decoding="async"/>
   </div>
-  <div id="hero-panel">
-    <h1>Bolão 2026</h1>
-    <p>Faça palpites, compete com amigos e suba no ranking da Copa do Mundo</p>
-    <div id="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-val">104</div>
-        <div class="hero-stat-lbl">Partidas</div>
+
+  <!-- Overlay gradiente escuro (bottom-heavy) -->
+  <div id="hero-overlay"></div>
+
+  <!-- Conteúdo hero: logo + título + CTA -->
+  <div id="hero-content">
+    <!-- Logo topo esquerdo -->
+    <div id="hero-logo">
+      <div id="hero-logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" width="18" height="18"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">48</div>
-        <div class="hero-stat-lbl">Seleções</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">∞</div>
-        <div class="hero-stat-lbl">Grupos</div>
-      </div>
+      <span id="hero-logo-text">Bolão Copa</span>
     </div>
+
+    <!-- Textos principais -->
+    <p id="hero-tagline"><span id="hero-badge-dot"></span>Copa do Mundo 2026</p>
+    <h1 id="hero-title"><span>O melhor bolão<br>da Copa do Mundo</span></h1>
+    <p id="hero-subtitle">Crie, participe e dispute com seus amigos em tempo real</p>
+
+    <!-- Stats -->
+    <div id="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">104</div><div class="hero-stat-lbl">Partidas</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">48</div><div class="hero-stat-lbl">Seleções</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">∞</div><div class="hero-stat-lbl">Grupos</div></div>
+    </div>
+
+    <!-- Botão CTA -->
     <button id="hero-btn" onclick="showAuth()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="position:relative;z-index:1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span>Entrar no Bolão</span>
+      <span>Começar bolão</span>
     </button>
   </div>
 </div>
 
-<!-- ════════ AUTH SCREEN — design premium Copa ════════ -->
+<!-- ════════ AUTH — bottom sheet sobre o hero ════════ -->
 <div id="auth-screen">
-
-  <!-- imagem da taça + bola -->
-  <div id="auth-hero-img"></div>
-
-  <!-- texto sobre a imagem -->
-  <div id="auth-hero-text">
-    <div class="auth-brand">
-      <span class="auth-brand-badge">Copa 2026</span>
-      <span class="auth-brand-name">Bolão Copa</span>
-    </div>
-    <h1>Entre no seu<br>bolão da Copa</h1>
-    <p>Dê seus palpites, acompanhe os jogos e dispute com seus amigos.</p>
-  </div>
+  <div id="auth-overlay" onclick="hideAuthIfOpen()"></div>
 
   <!-- card de formulário (bottom sheet) -->
   <div class="auth-card">
@@ -2108,12 +1989,21 @@ function clearAuthErr(){const el=q('#auth-err');if(el){el.textContent='';el.clas
 function showAuth(){
   const auth=q('#auth-screen');
   clearAuthErr();
-  auth.style.display='flex';
+  auth.style.display='block';
   auth.style.pointerEvents='auto';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     auth.classList.add('visible');
-    setTimeout(()=>q('#l-email')?.focus(),480);
+    setTimeout(()=>q('#l-email')?.focus(),420);
   }));
+}
+function hideAuthIfOpen(){
+  const auth=q('#auth-screen');
+  if(!auth.classList.contains('visible'))return;
+  auth.classList.remove('visible');
+  setTimeout(()=>{
+    auth.style.display='none';
+    auth.style.pointerEvents='none';
+  },400);
 }
 function hideSplashAndAuth(){
   q('#hero-screen').style.display='none';
