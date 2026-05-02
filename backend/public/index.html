@@ -193,7 +193,7 @@ a{color:inherit;text-decoration:none}
 #hero-bg{
   position:absolute;
   inset:-5%;
-  background-image:url('/auth-hero.jpg');
+  background-image:url('/auth-hero.png');
   background-size:cover;
   background-position:center 30%;
   background-repeat:no-repeat;
@@ -357,7 +357,7 @@ a{color:inherit;text-decoration:none}
 #auth-hero-img{
   position:absolute;top:0;left:0;right:0;
   height:52%;
-  background-image:url('/auth-hero.jpg');
+  background-image:url('/auth-hero.png');
   background-size:cover;
   background-position:center 30%;
   flex-shrink:0;
@@ -2134,6 +2134,7 @@ async function tryAutoLogin(){
 
   if(!S.token){
     q('#app').style.display='none';
+    q('#hero-screen').style.display='flex';
     return;
   }
   q('#hero-screen').style.display='none';
