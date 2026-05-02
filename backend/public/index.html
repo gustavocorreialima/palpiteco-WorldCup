@@ -182,40 +182,23 @@ a{color:inherit;text-decoration:none}
   position:fixed;inset:0;z-index:200;
   display:flex;flex-direction:column;
   align-items:center;justify-content:flex-end;
-  background-color:#000;
-  animation:hsFadeIn .8s ease both;
-  transition:opacity .4s ease;
+  background-color:#0a0f1e;
   overflow:hidden;
 }
-@keyframes hsFadeIn{from{opacity:0}to{opacity:1}}
 
-/* imagem de fundo com Ken Burns sutil */
+/* imagem de fundo */
 #hero-bg{
   position:absolute;
-  inset:-5%;
-  background-image:url('/auth-hero.png');
-  background-size:cover;
-  background-position:center 30%;
-  background-repeat:no-repeat;
-  background-color:#111;
+  inset:0;
+  background-color:#0a0f1e;
+  overflow:hidden;
+}
+#hero-bg img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 30%;
   filter:brightness(0.82) contrast(1.08) saturate(1.1);
-  animation:heroKenBurns 22s ease-in-out infinite alternate;
-  transform-origin:center center;
-}
-@keyframes heroKenBurns{
-  0%  {transform:scale(1.00) translateY(0%)}
-  50% {transform:scale(1.04) translateY(-1%)}
-  100%{transform:scale(1.02) translateY(1%)}
-}
-@media(min-aspect-ratio:16/10){
-  #hero-bg{
-    background-position:center 40%;
-    animation:heroKenBurnsLandscape 22s ease-in-out infinite alternate;
-  }
-  @keyframes heroKenBurnsLandscape{
-    0%  {transform:scale(1.00)}
-    100%{transform:scale(1.04) translateX(-1%)}
-  }
+  display:block;
 }
 
 /* overlay multicamada: escurece topo e base para profundidade */
@@ -248,10 +231,9 @@ a{color:inherit;text-decoration:none}
   border:1px solid rgba(255,255,255,0.18);
   border-radius:100px;
   padding:7px 16px;
-  animation:heroBadgeIn .7s .3s ease both;
   white-space:nowrap;
 }
-@keyframes heroBadgeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
 #hero-badge span{font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.5px;white-space:nowrap}
 #hero-badge .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:heroDotPulse 1.8s ease-in-out infinite}
 @keyframes heroDotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(0.8)}}
@@ -269,10 +251,8 @@ a{color:inherit;text-decoration:none}
   border-top:1px solid rgba(255,255,255,0.22);
   border-radius:24px;
   box-shadow:0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) inset;
-  animation:hsPanelUp .7s .2s ease both;
   width:calc(100% - 40px);max-width:420px;
 }
-@keyframes hsPanelUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
 /* linha decorativa de cor no topo do painel */
 #hero-panel::before{
@@ -1502,7 +1482,7 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
 
 <!-- ════════ HERO (tela de entrada) ════════ -->
 <div id="hero-screen">
-  <div id="hero-bg"></div>
+  <div id="hero-bg"><img src="/auth-hero.png" alt="" loading="eager" fetchpriority="high"/></div>
   <div id="hero-overlay"></div>
   <div id="hero-vignette"></div>
   <div id="hero-badge">
