@@ -195,7 +195,7 @@ a{color:inherit;text-decoration:none}
 #hero-bg img{
   width:100%;height:100%;
   object-fit:cover;
-  object-position:center 25%;
+  object-position:center 45%;
   display:block;
 }
 
@@ -252,26 +252,13 @@ a{color:inherit;text-decoration:none}
 }
 #hero-subtitle{
   font-size:15px;color:rgba(255,255,255,0.62);
-  line-height:1.55;margin-bottom:32px;
+  line-height:1.55;margin-bottom:40px;
   text-shadow:0 1px 8px rgba(0,0,0,0.5);
   max-width:320px;
 }
 
-/* Stats rápidos */
-#hero-stats{
-  display:flex;gap:0;
-  margin-bottom:28px;
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:16px;overflow:hidden;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-}
-.hero-stat{
-  flex:1;padding:11px 8px;text-align:center;
-  border-right:1px solid rgba(255,255,255,0.10);
-}
-.hero-stat:last-child{border-right:none}
-.hero-stat-val{font-size:18px;font-weight:800;color:#fff;line-height:1}
-.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.45);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px}
+/* Stats rápidos — oculto */
+#hero-stats{display:none}
 
 /* Botão CTA */
 #hero-btn{
