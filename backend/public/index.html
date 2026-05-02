@@ -342,136 +342,217 @@ a{color:inherit;text-decoration:none}
 #hero-btn:active{transform:scale(0.97);box-shadow:0 4px 14px rgba(37,99,235,.30)}
 #hero-btn:not(:active):hover{transform:translateY(-1px);box-shadow:0 12px 36px rgba(37,99,235,.60)}
 
-/* ══════════════════════════
-   AUTH — sobrepõe o hero
-══════════════════════════ */
+/* ══════════════════════════════════════
+   AUTH SCREEN — novo design premium Copa
+══════════════════════════════════════ */
 #auth-screen{
   position:fixed;inset:0;z-index:201;
   display:none;pointer-events:none;
-  background-image:url('/hero.jpg');
-  background-size:cover;
-  background-position:center 45%;
+  background:#030712;
   overflow:hidden;
-}
-@media(min-width:680px){
-  #auth-screen{background-position:30% 45%}
+  flex-direction:column;
 }
 #auth-screen.visible{pointer-events:auto}
 
-/* overlay escuro que anima ao abrir */
-#auth-overlay{
-  position:absolute;inset:0;pointer-events:none;
-  background:rgba(4,10,22,0);
-  transition:background .5s ease;
+/* — imagem hero no topo — */
+#auth-hero-img{
+  position:absolute;top:0;left:0;right:0;
+  height:52%;
+  background-image:url('/auth-hero.jpg');
+  background-size:cover;
+  background-position:center 30%;
+  flex-shrink:0;
 }
-#auth-screen.visible #auth-overlay{
-  background:rgba(4,10,22,0.65);
+/* gradiente escurece para baixo, criando transição suave para o card */
+#auth-hero-img::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(3,7,18,0.10) 0%,
+    rgba(3,7,18,0.35) 55%,
+    rgba(3,7,18,0.92) 80%,
+    rgba(3,7,18,1.00) 100%
+  );
 }
 
-/* — MOBILE: card desliza de baixo — */
+/* texto sobre a imagem */
+#auth-hero-text{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:52%;
+  z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;
+  padding:0 24px 24px;
+  text-align:center;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s .1s ease, transform .5s .1s ease;
+}
+#auth-screen.visible #auth-hero-text{opacity:1;transform:translateY(0)}
+
+#auth-hero-text .auth-brand{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+#auth-hero-text .auth-brand-badge{
+  background:linear-gradient(135deg,#d97706,#f59e0b);
+  border-radius:8px;padding:4px 8px;
+  font-size:10px;font-weight:800;color:#fff;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 2px 10px rgba(245,158,11,0.5);
+}
+#auth-hero-text .auth-brand-name{
+  font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);
+  letter-spacing:0.5px;
+}
+#auth-hero-text h1{
+  font-size:26px;font-weight:900;color:#fff;
+  letter-spacing:-0.8px;line-height:1.15;
+  margin-bottom:8px;
+  text-shadow:0 2px 20px rgba(0,0,0,0.8);
+}
+#auth-hero-text p{
+  font-size:13px;color:rgba(255,255,255,0.55);
+  line-height:1.55;max-width:300px;
+}
+
+/* — CARD glassmorphism — */
 .auth-card{
-  position:absolute;bottom:0;left:0;right:0;
+  position:absolute;
+  bottom:0;left:0;right:0;
   z-index:4;
-  max-height:92dvh;
+  max-height:72dvh;
   overflow-y:auto;
   scrollbar-width:none;
-  padding:24px 22px calc(32px + env(safe-area-inset-bottom));
-  background:rgba(6,12,26,0.88);
-  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
-  border-top:1px solid rgba(255,255,255,0.13);
+  padding:8px 22px calc(28px + env(safe-area-inset-bottom));
+  background:rgba(8,14,30,0.82);
+  backdrop-filter:blur(32px) saturate(1.4);
+  -webkit-backdrop-filter:blur(32px) saturate(1.4);
+  border-top:1px solid rgba(255,255,255,0.10);
   border-radius:28px 28px 0 0;
   transform:translateY(100%);
-  transition:transform .45s cubic-bezier(.32,.72,0,1);
-  box-shadow:0 -20px 60px rgba(0,0,0,0.5);
+  transition:transform .5s cubic-bezier(.32,.72,0,1);
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,0.06),
+    0 -32px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .auth-card::-webkit-scrollbar{display:none}
 #auth-screen.visible .auth-card{transform:translateY(0)}
 
-/* handle drag */
+/* drag handle */
 .auth-card::before{
   content:'';display:block;
-  width:40px;height:4px;border-radius:2px;
-  background:rgba(255,255,255,0.18);
-  margin:0 auto 20px;
+  width:36px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.14);
+  margin:0 auto 18px;
 }
 
-/* — DESKTOP: painel fixo à direita, desliza da direita — */
+/* — DESKTOP: painel direito — */
 @media(min-width:680px){
-  /* no desktop o overlay vira gradiente lateral (claro esquerda → escuro direita) */
-  #auth-screen.visible #auth-overlay{
+  #auth-hero-img{
+    height:100%;
+    background-position:20% center;
+  }
+  #auth-hero-img::after{
     background:linear-gradient(
-      105deg,
-      rgba(4,10,22,0.10) 0%,
-      rgba(4,10,22,0.20) 35%,
-      rgba(4,10,22,0.70) 58%,
-      rgba(4,10,22,0.95) 100%
+      to right,
+      rgba(3,7,18,0.05) 0%,
+      rgba(3,7,18,0.30) 45%,
+      rgba(3,7,18,0.92) 70%,
+      rgba(3,7,18,1.00) 100%
     );
   }
+  #auth-hero-text{
+    height:100%;
+    align-items:flex-start;
+    justify-content:flex-end;
+    padding:0 0 80px 52px;
+    text-align:left;
+    left:0;right:420px;
+  }
+  #auth-hero-text h1{font-size:34px}
+  #auth-hero-text p{font-size:14px;max-width:320px}
   .auth-card{
     top:0;bottom:0;left:auto;right:0;
     width:400px;max-height:none;
-    border-radius:0;
-    border-top:none;
-    border-left:1px solid rgba(255,255,255,0.08);
-    padding:0 40px;
+    border-radius:0;border-top:none;
+    border-left:1px solid rgba(255,255,255,0.07);
+    padding:0 36px;
     display:flex;flex-direction:column;justify-content:center;
     transform:translateX(100%);
-    transition:transform .45s cubic-bezier(.32,.72,0,1);
-    box-shadow:-20px 0 60px rgba(0,0,0,0.4);
+    transition:transform .5s cubic-bezier(.32,.72,0,1);
+    box-shadow:-24px 0 80px rgba(0,0,0,0.5);
+    max-height:none;overflow-y:auto;
   }
   .auth-card::before{display:none}
   #auth-screen.visible .auth-card{transform:translateX(0)}
-
-  /* texto de impacto desktop */
-  #auth-headline{
-    position:absolute;left:0;bottom:60px;
-    width:calc(100% - 420px);
-    z-index:3;
-    padding:0 0 0 52px;
-    transform:translateY(12px);opacity:0;
-    transition:transform .5s .2s ease, opacity .5s .2s ease;
-  }
-  #auth-screen.visible #auth-headline{transform:translateY(0);opacity:1}
-  #auth-headline h2{
-    font-size:40px;font-weight:900;color:#fff;line-height:1.1;
-    letter-spacing:-1.5px;text-shadow:0 4px 24px rgba(0,0,0,0.6);margin-bottom:12px;
-  }
-  #auth-headline p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:340px}
 }
 @media(max-width:679px){
   #auth-headline{display:none}
 }
 
-/* logo */
-.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+/* — LOGO dentro do card — */
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .auth-logo-icon{
-  width:34px;height:34px;border-radius:9px;
-  background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#d97706,#f59e0b);
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 14px rgba(37,99,235,0.45);flex-shrink:0;
+  box-shadow:0 4px 16px rgba(245,158,11,0.4);flex-shrink:0;
 }
 .auth-logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
-.auth-logo-sub{font-size:11px;color:rgba(255,255,255,0.4)}
+.auth-logo-sub{font-size:11px;color:rgba(255,255,255,0.35)}
 
-.auth-header{margin-bottom:20px}
-.auth-header h1{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.6px;line-height:1.2}
-.auth-header p{font-size:13px;color:rgba(255,255,255,.45);margin-top:5px;line-height:1.5}
+/* cabeçalho do form */
+.auth-header{margin-bottom:18px}
+.auth-header h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2}
+.auth-header p{font-size:13px;color:rgba(255,255,255,.40);margin-top:4px;line-height:1.5}
 
-/* botões sociais */
+/* — BOTÃO PRINCIPAL — */
+.auth-submit-btn{
+  position:relative;overflow:hidden;
+  width:100%;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,#16a34a 0%,#15803d 50%,#166534 100%);
+  color:#fff;font-size:15px;font-weight:800;
+  border:none;cursor:pointer;letter-spacing:0.2px;font-family:inherit;
+  box-shadow:0 6px 24px rgba(22,163,74,0.45), 0 2px 6px rgba(22,163,74,0.25);
+  transition:transform .15s ease, box-shadow .15s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:0;
+}
+.auth-submit-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0.12) 0%,transparent 100%);
+}
+.auth-submit-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.2) 50%,transparent 70%);
+  background-size:300% 100%;background-position:350% 0;
+  animation:authBtnShine 3.5s 1s ease infinite;
+}
+@keyframes authBtnShine{
+  0%{background-position:350% 0}
+  40%,100%{background-position:-100% 0}
+}
+.auth-submit-btn:active{transform:scale(0.97);box-shadow:0 3px 12px rgba(22,163,74,0.3)}
+.auth-submit-btn:hover:not(:active){transform:translateY(-1px);box-shadow:0 10px 32px rgba(22,163,74,0.55)}
+.auth-submit-btn.loading{opacity:0.65;pointer-events:none}
+.auth-submit-btn span{position:relative;z-index:1}
+
+/* — BOTÕES SOCIAIS — */
 .auth-social-btn{
-  width:100%;height:48px;border-radius:12px;
+  width:100%;height:48px;border-radius:13px;
   display:flex;align-items:center;justify-content:center;gap:10px;
   font-size:14px;font-weight:600;cursor:pointer;border:none;
   transition:all 0.18s ease;margin-bottom:8px;font-family:inherit;
 }
 .auth-social-btn:active{transform:scale(0.97)}
 .auth-btn-google{
-  background:#fff;color:#1f1f1f;
-  border:1px solid rgba(255,255,255,0.2);
-  font-weight:600;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  background:rgba(255,255,255,0.96);
+  color:#1f1f1f;
+  border:none;font-weight:600;
+  box-shadow:0 2px 10px rgba(0,0,0,0.3);
 }
-.auth-btn-google:hover{background:#f5f5f5;box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+.auth-btn-google:hover{background:#fff;box-shadow:0 4px 18px rgba(0,0,0,0.4)}
 .auth-btn-google:active{transform:scale(0.97)}
 /* loading state */
 .auth-social-btn.loading{opacity:0.6;pointer-events:none}
@@ -479,13 +560,13 @@ a{color:inherit;text-decoration:none}
 #oauth-loading{
   position:fixed;inset:0;z-index:9999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#040a16;gap:20px;
+  background:#030712;gap:20px;
 }
 #oauth-loading p{color:rgba(255,255,255,0.7);font-size:15px;font-weight:500;margin:0}
 .oauth-spinner{
   width:44px;height:44px;border-radius:50%;
   border:3px solid rgba(255,255,255,0.12);
-  border-top-color:#3b82f6;
+  border-top-color:#f59e0b;
   animation:oauthSpin .75s linear infinite;
 }
 @keyframes oauthSpin{to{transform:rotate(360deg)}}
@@ -498,34 +579,33 @@ a{color:inherit;text-decoration:none}
 
 .auth-divider{
   display:flex;align-items:center;gap:12px;
-  color:rgba(255,255,255,0.3);font-size:11px;font-weight:600;letter-spacing:.5px;
+  color:rgba(255,255,255,0.25);font-size:11px;font-weight:600;letter-spacing:.5px;
   margin:14px 0;
 }
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.09)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
 
-/* campos */
+/* — CAMPOS — */
 .field-wrap{position:relative;margin-bottom:10px}
 .field-wrap label{
   display:block;font-size:11px;font-weight:700;
-  color:rgba(255,255,255,0.40);letter-spacing:.6px;
+  color:rgba(255,255,255,0.35);letter-spacing:.6px;
   text-transform:uppercase;margin-bottom:5px;
 }
-/* campo de formulário — escuro */
 .form-field{
   width:100%;padding:14px 16px;
-  background:rgba(255,255,255,0.07);
-  border:1.5px solid rgba(255,255,255,0.10);
-  border-radius:12px;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.09);
+  border-radius:13px;
   color:#fff;font-size:14px;margin-bottom:0;
   transition:border-color .15s,background .15s,box-shadow .15s;
   outline:none;font-family:inherit;
 }
 .form-field:focus{
-  border-color:rgba(99,163,255,0.7);
-  background:rgba(255,255,255,0.11);
-  box-shadow:0 0 0 3px rgba(37,99,235,0.20);
+  border-color:rgba(245,158,11,0.6);
+  background:rgba(255,255,255,0.10);
+  box-shadow:0 0 0 3px rgba(245,158,11,0.15);
 }
-.form-field::placeholder{color:rgba(255,255,255,0.25)}
+.form-field::placeholder{color:rgba(255,255,255,0.22)}
 
 /* Variante para modais/fundos claros */
 .modal-input{
@@ -546,25 +626,27 @@ select.modal-input{cursor:pointer;appearance:none;
 
 .auth-error{
   font-size:12px;color:#fca5a5;
-  background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);
-  border-radius:10px;padding:9px 12px;margin-bottom:12px;display:none;
+  background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);
+  border-radius:11px;padding:10px 13px;margin-bottom:12px;display:none;
+  line-height:1.5;
 }
 .auth-error.visible{display:block}
 
 .auth-switch{
-  text-align:center;font-size:13px;color:rgba(255,255,255,0.45);margin-top:14px;
+  text-align:center;font-size:13px;color:rgba(255,255,255,0.38);margin-top:14px;
 }
 .auth-switch button{
   background:none;border:none;cursor:pointer;
-  color:rgba(99,163,255,0.9);font-weight:700;font-size:13px;
-  padding:0 4px;text-decoration:underline;text-underline-offset:2px;
+  color:#f59e0b;font-weight:700;font-size:13px;
+  padding:0 4px;text-decoration:none;
 }
+.auth-switch button:hover{text-decoration:underline;text-underline-offset:2px}
 
 .auth-legal{
-  text-align:center;font-size:10px;color:rgba(255,255,255,0.25);
+  text-align:center;font-size:10px;color:rgba(255,255,255,0.22);
   line-height:1.6;margin-top:16px;
 }
-.auth-legal a{color:rgba(255,255,255,0.4);text-decoration:underline}
+.auth-legal a{color:rgba(255,255,255,0.38);text-decoration:underline}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -1452,17 +1534,23 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
   </div>
 </div>
 
-<!-- ════════ AUTH (flutua sobre o hero) ════════ -->
+<!-- ════════ AUTH SCREEN — design premium Copa ════════ -->
 <div id="auth-screen">
-  <div id="auth-overlay"></div>
 
-  <!-- texto desktop à esquerda -->
-  <div id="auth-headline">
-    <h2>Entre no jogo.<br>Jogue grátis.</h2>
-    <p>Faça palpites em todas as 104 partidas, crie grupos com amigos e dispute o ranking da Copa do Mundo 2026.</p>
+  <!-- imagem da taça + bola -->
+  <div id="auth-hero-img"></div>
+
+  <!-- texto sobre a imagem -->
+  <div id="auth-hero-text">
+    <div class="auth-brand">
+      <span class="auth-brand-badge">Copa 2026</span>
+      <span class="auth-brand-name">Bolão Copa</span>
+    </div>
+    <h1>Entre no seu<br>bolão da Copa</h1>
+    <p>Dê seus palpites, acompanhe os jogos e dispute com seus amigos.</p>
   </div>
 
-  <!-- card de formulário -->
+  <!-- card de formulário (bottom sheet) -->
   <div class="auth-card">
 
     <div class="auth-logo">
@@ -1470,8 +1558,8 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" width="18" height="18"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
       </div>
       <div>
-        <div class="auth-logo-text">Bolão 2026</div>
-        <div class="auth-logo-sub">Copa do Mundo · FIFA WC</div>
+        <div class="auth-logo-text">Bolão Copa</div>
+        <div class="auth-logo-sub">Copa do Mundo · FIFA 2026</div>
       </div>
     </div>
 
@@ -1492,12 +1580,12 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
         <label>Senha</label>
         <div style="position:relative">
           <input id="l-pass" class="form-field" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:46px"/>
-          <button type="button" onclick="togglePass('l-pass','l-pass-eye')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0;display:flex;align-items:center">
+          <button type="button" onclick="togglePass('l-pass','l-pass-eye')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);padding:0;display:flex;align-items:center">
             <svg id="l-pass-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;height:50px;border-radius:12px;font-size:15px;font-weight:700" onclick="doLogin()">Entrar</button>
+      <button class="auth-submit-btn" onclick="doLogin()"><span>Entrar</span></button>
       <div class="auth-switch">Não tem conta? <button onclick="switchTab('register')">Cadastre-se grátis</button></div>
     </div>
 
@@ -1519,12 +1607,12 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
         <label>Senha</label>
         <div style="position:relative">
           <input id="r-pass" class="form-field" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="padding-right:46px"/>
-          <button type="button" onclick="togglePass('r-pass','r-pass-eye')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0;display:flex;align-items:center">
+          <button type="button" onclick="togglePass('r-pass','r-pass-eye')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);padding:0;display:flex;align-items:center">
             <svg id="r-pass-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;height:50px;border-radius:12px;font-size:15px;font-weight:700" onclick="doRegister()">Criar conta grátis</button>
+      <button class="auth-submit-btn" onclick="doRegister()"><span>Criar conta grátis</span></button>
       <div class="auth-switch">Já tem conta? <button onclick="switchTab('login')">Entrar</button></div>
     </div>
 
@@ -1535,7 +1623,7 @@ body.dark .gd-invite-code-box{background:rgba(22,163,74,0.08);border-color:rgba(
       Entrar com Google
     </button>
 
-    <button class="auth-social-btn" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.08);margin-top:8px" onclick="doDemo()">
+    <button class="auth-social-btn" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.50);border:1px solid rgba(255,255,255,0.08)" onclick="doDemo()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       Explorar sem cadastro
     </button>
@@ -2020,7 +2108,7 @@ function clearAuthErr(){const el=q('#auth-err');if(el){el.textContent='';el.clas
 function showAuth(){
   const auth=q('#auth-screen');
   clearAuthErr();
-  auth.style.display='block';
+  auth.style.display='flex';
   auth.style.pointerEvents='auto';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     auth.classList.add('visible');
