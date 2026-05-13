@@ -1,0 +1,68 @@
+name: bolao2026
+description: Bolão 2026 — World Cup betting pool. Premium esports-grade UI.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_bloc: ^8.1.5
+  equatable: ^2.0.5
+  get_it: ^7.7.0
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # Network
+  dio: ^5.4.3
+  retrofit: ^4.1.0
+
+  # Auth
+  supabase_flutter: ^2.5.6
+
+  # UI & animations
+  animate_do: ^3.3.4
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.2
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+
+  # Misc
+  intl: ^0.19.0
+  shared_preferences: ^2.2.3
+  url_launcher: ^6.3.0
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.9
+  retrofit_generator: ^8.1.0
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-ExtraBold.ttf
+          weight: 800
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
