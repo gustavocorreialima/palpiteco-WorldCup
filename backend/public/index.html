@@ -168,23 +168,23 @@ a{color:inherit;text-decoration:none}
 }
 #hero-bg img{
   width:100%;height:100%;
-  object-fit:cover;object-position:42% 85%;
+  object-fit:cover;object-position:center 30%;
   transform-origin:center;
   animation:heroZoom 12s ease-in-out infinite alternate;
 }
 @keyframes heroZoom{0%{transform:scale(1)}100%{transform:scale(1.04)}}
-@media(max-width:768px){#hero-bg img{object-position:38% 88%}}
+@media(max-width:768px){#hero-bg img{object-position:center 25%}}
 
 /* very subtle cinematic vignette — trophy stays fully visible */
 #hero-overlay{
   position:absolute;inset:0;z-index:1;pointer-events:none;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(5,8,22,0.15) 0%, transparent 60%),
+    linear-gradient(to right, rgba(2,4,8,0.55) 0%, rgba(2,4,8,0.0) 55%),
     linear-gradient(to bottom,
       rgba(5,8,22,0.05) 0%,
-      rgba(5,8,22,0.0) 30%,
-      rgba(5,8,22,0.55) 72%,
-      rgba(5,8,22,0.97) 100%
+      rgba(5,8,22,0.0) 25%,
+      rgba(5,8,22,0.45) 70%,
+      rgba(5,8,22,0.92) 100%
     );
 }
 
@@ -321,13 +321,14 @@ a{color:inherit;text-decoration:none}
 @media(min-width:680px){
   #hero-content{
     flex-direction:row;align-items:stretch;
-    padding:0;justify-content:space-between;
+    padding:0;justify-content:flex-start;
   }
   #hero-bottom{
-    width:380px;align-self:flex-end;
+    width:min(480px,50%);align-self:flex-end;
     padding:0 48px 60px;
+    background:linear-gradient(to right, rgba(2,4,8,0.82) 70%, transparent 100%);
   }
-  #hero-title{font-size:44px}
+  #hero-title{font-size:48px}
 }
 
 /* ══════════════════════════════════════
