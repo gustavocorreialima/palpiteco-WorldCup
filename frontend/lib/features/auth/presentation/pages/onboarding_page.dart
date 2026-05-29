@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -91,19 +92,14 @@ class _OnboardingPageState extends State<OnboardingPage>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ── HERO IMAGE — fills entire screen ──────────────────────────────
+          // ── HERO — gradient premium background (imagem carregada se existir) ──
           AnimatedBuilder(
             animation: _heroScale,
             builder: (context, child) => Transform.scale(
               scale: _heroScale.value,
               child: child,
             ),
-            child: Image.asset(
-              'assets/images/auth_hero.jpg',
-              fit: BoxFit.cover,
-              alignment: const Alignment(0.0, -0.1),
-              errorBuilder: (_, __, ___) => _HeroFallback(size: size),
-            ),
+            child: _HeroBackground(size: size),
           ),
 
           // ── VERY LIGHT GRADIENT OVERLAY (top 20% → transparent → bottom) ─
@@ -180,40 +176,36 @@ class _OnboardingPageState extends State<OnboardingPage>
               opacity: _contentFade,
               child: Column(
                 children: [
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'BOLÃO ',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 2,
-                          ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 36, height: 36,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [AppColors.neonBlue, AppColors.purple]),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          boxShadow: AppColors.glowBlue(intensity: 0.5),
                         ),
-                        TextSpan(
-                          text: '2026',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.neonGreen,
-                            letterSpacing: 2,
-                          ),
+                        child: const Icon(Icons.sports_soccer_rounded, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(text: 'BOLÃO ', style: AppTextStyles.h1.copyWith(color: Colors.white, letterSpacing: 2, fontSize: 26)),
+                            TextSpan(text: '2026', style: AppTextStyles.h1.copyWith(color: AppColors.neonGreen, letterSpacing: 2, fontSize: 26)),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
-                    'COPA DO MUNDO',
+                    'COPA DO MUNDO • USA / CAN / MEX',
                     style: AppTextStyles.labelNeon.copyWith(
                       color: AppColors.textSecondary,
-                      letterSpacing: 4,
-                      fontSize: 11,
+                      letterSpacing: 3,
+                      fontSize: 9,
                     ),
                   ),
                 ],
@@ -263,27 +255,16 @@ class _BottomContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Tagline
-          const Text(
+          Text(
             'Entre no melhor bolão da\nCopa do Mundo 2026',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-              height: 1.3,
-            ),
+            style: AppTextStyles.h2.copyWith(height: 1.3),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Palpite. Compete. Vença.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: AppColors.textSecondary,
-            ),
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
           ),
 
           const SizedBox(height: 32),
@@ -300,24 +281,24 @@ class _BottomContent extends StatelessWidget {
             onTap: () => context.go('/login'),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // Secondary link
           GestureDetector(
-            onTap: () => context.go('/login'),
-            child: const Text(
-              'Já tenho conta  →',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+            onTap: () {
+              HapticFeedback.selectionClick();
+              context.go('/login');
+            },
+            child: Text(
+              'Já tenho uma conta',
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.textMuted,
               ),
             ),
           ),
-
-          const SizedBox(height: 8),
-          _ExploreChip(),
         ],
       ),
     );
@@ -431,29 +412,6 @@ class _NeonButtonState extends State<_NeonButton> with SingleTickerProviderState
   }
 }
 
-class _ExploreChip extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: const Text(
-        'Como funciona?',
-        style: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 12,
-          color: AppColors.textMuted,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
-
 // ===========================================================================
 // PARTICLE PAINTER — subtle floating lights
 // ===========================================================================
@@ -508,31 +466,92 @@ class _Particle {
 }
 
 // ===========================================================================
-// HERO FALLBACK — shown if image asset not found
+// HERO BACKGROUND — premium gradient com campo de futebol estilizado
 // ===========================================================================
-class _HeroFallback extends StatelessWidget {
+class _HeroBackground extends StatelessWidget {
   final Size size;
-  const _HeroFallback({required this.size});
+  const _HeroBackground({required this.size});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size.width,
-      height: size.height,
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(0, -0.2),
-          radius: 1.2,
-          colors: [Color(0xFF1A3A6B), Color(0xFF081220)],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Base gradient
+        Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0, -0.1),
+              radius: 1.3,
+              colors: [Color(0xFF0F2A50), Color(0xFF081220)],
+            ),
+          ),
         ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.emoji_events_rounded,
-          size: 160,
-          color: AppColors.gold.withOpacity(0.8),
+        // Campo de futebol estilizado (linhas)
+        CustomPaint(painter: _FieldPainter()),
+        // Glow central dourado (troféu)
+        Center(
+          child: Container(
+            width: size.width * 0.6,
+            height: size.width * 0.6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.gold.withOpacity(0.12),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
+        // Troféu central
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 120, height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [AppColors.gold.withOpacity(0.2), Colors.transparent],
+                  ),
+                  boxShadow: [
+                    BoxShadow(color: AppColors.gold.withOpacity(0.3), blurRadius: 60, spreadRadius: 10),
+                  ],
+                ),
+                child: Icon(Icons.emoji_events_rounded, size: 80, color: AppColors.gold.withOpacity(0.9)),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
+}
+
+class _FieldPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.04)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    // Círculo central
+    canvas.drawCircle(Offset(size.width / 2, size.height * 0.42), size.width * 0.25, paint);
+    // Linha central
+    canvas.drawLine(Offset(0, size.height * 0.42), Offset(size.width, size.height * 0.42), paint);
+    // Área grande
+    final areaRect = Rect.fromCenter(
+      center: Offset(size.width / 2, size.height * 0.72),
+      width: size.width * 0.55,
+      height: size.height * 0.22,
+    );
+    canvas.drawRRect(RRect.fromRectAndRadius(areaRect, const Radius.circular(4)), paint);
+  }
+
+  @override
+  bool shouldRepaint(_FieldPainter old) => false;
 }

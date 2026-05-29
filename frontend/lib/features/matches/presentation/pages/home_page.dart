@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../domain/entities/match.dart';
@@ -83,9 +84,9 @@ class _HomeAppBar extends StatelessWidget {
       title: Row(
         children: [
           RichText(
-            text: const TextSpan(children: [
-              TextSpan(text: 'Bolão ', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-              TextSpan(text: '2026', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.neonGreen)),
+            text: TextSpan(children: [
+              TextSpan(text: 'Bolão ', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              TextSpan(text: '2026', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.neonGreen)),
             ]),
           ),
           const SizedBox(width: 8),
@@ -157,7 +158,7 @@ class _HeroRankCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Olá, João! 👋', style: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                        Text('Olá, João!', style: AppTextStyles.bodyLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
                         Text('Que comece a competição!', style: AppTextStyles.caption.copyWith(color: Colors.white60)),
                       ],
                     ),

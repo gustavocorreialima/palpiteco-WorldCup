@@ -3,64 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 
-// ===========================================================================
-// MAIN SHELL — persistent bottom nav + page scaffold
-// ===========================================================================
-class MainShell extends StatefulWidget {
-  final Widget child;
-  const MainShell({super.key, required this.child});
+class MainShell extends StatelessWidget {
+  final StatefulNavigationShell shell;
+  const MainShell({super.key, required this.shell});
 
-  @override
-  State<MainShell> createState() => _MainShellState();
-}
-
-class _MainShellState extends State<MainShell> {
   static const _tabs = [
-    _NavTab(path: '/home',     icon: Icons.home_rounded,          label: 'Início'),
-    _NavTab(path: '/palpites', icon: Icons.sports_soccer_rounded,  label: 'Palpites'),
-    _NavTab(path: '/ao-vivo',  icon: Icons.radio_button_checked_rounded, label: 'Ao vivo'),
-    _NavTab(path: '/ranking',  icon: Icons.leaderboard_rounded,    label: 'Ranking'),
-    _NavTab(path: '/grupos',   icon: Icons.group_rounded,          label: 'Grupos'),
+    _NavTab(icon: Icons.home_rounded,                  label: 'Início',   isLive: false),
+    _NavTab(icon: Icons.sports_soccer_rounded,         label: 'Palpites', isLive: false),
+    _NavTab(icon: Icons.radio_button_checked_rounded,  label: 'Ao Vivo',  isLive: true),
+    _NavTab(icon: Icons.leaderboard_rounded,           label: 'Ranking',  isLive: false),
+    _NavTab(icon: Icons.person_rounded,                label: 'Perfil',   isLive: false),
   ];
 
-  int _currentIndex = 0;
-
-  void _onTabTap(int index) {
-    if (index == _currentIndex) return;
-    setState(() => _currentIndex = index);
-    context.go(_tabs[index].path);
+  void _onTap(int index) {
+    shell.goBranch(index, initialLocation: index == shell.currentIndex);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Sync index from router location
-    final location = GoRouterState.of(context).uri.path;
-    final idx = _tabs.indexWhere((t) => location.startsWith(t.path));
-    if (idx >= 0 && idx != _currentIndex) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _currentIndex = idx);
-      });
-    }
-
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBody: true,
-      body: widget.child,
+      body: shell,
       bottomNavigationBar: _GlassNavBar(
-        currentIndex: _currentIndex,
+        currentIndex: shell.currentIndex,
         tabs: _tabs,
-        onTap: _onTabTap,
+        onTap: _onTap,
         bottomPadding: bottomPadding,
       ),
     );
   }
 }
 
-// ===========================================================================
-// GLASS NAVIGATION BAR
-// ===========================================================================
 class _GlassNavBar extends StatelessWidget {
   final int currentIndex;
   final List<_NavTab> tabs;
@@ -85,31 +61,20 @@ class _GlassNavBar extends StatelessWidget {
           child: Container(
             height: 68,
             decoration: BoxDecoration(
-              color: AppColors.card.withOpacity(0.9),
+              color: AppColors.card.withOpacity(0.92),
               borderRadius: BorderRadius.circular(AppRadius.xl),
-              border: Border.all(
-                color: AppColors.cardBorder,
-                width: 1,
-              ),
+              border: Border.all(color: AppColors.cardBorder, width: 1),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-                BoxShadow(
-                  color: AppColors.neonBlue.withOpacity(0.06),
-                  blurRadius: 20,
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 30, offset: const Offset(0, 10)),
+                BoxShadow(color: AppColors.neonBlue.withOpacity(0.06), blurRadius: 20),
               ],
             ),
             child: Row(
               children: List.generate(tabs.length, (i) {
-                final isActive = i == currentIndex;
                 return Expanded(
                   child: _NavItem(
                     tab: tabs[i],
-                    isActive: isActive,
+                    isActive: i == currentIndex,
                     onTap: () => onTap(i),
                   ),
                 );
@@ -141,18 +106,17 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    _ctrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
     _scale = Tween<double>(begin: 0.85, end: 1.0).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
-    _glow  = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-    if (widget.isActive) _ctrl.forward();
+    _glow  = Tween<double>(begin: 0.0,  end: 1.0).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    if (widget.isActive) _ctrl.value = 1.0;
   }
 
   @override
   void didUpdateWidget(covariant _NavItem old) {
     super.didUpdateWidget(old);
     if (widget.isActive != old.isActive) {
-      if (widget.isActive) _ctrl.forward();
-      else _ctrl.reverse();
+      widget.isActive ? _ctrl.forward() : _ctrl.reverse();
     }
   }
 
@@ -161,27 +125,25 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    final isLive = widget.tab.path == '/ao-vivo';
+    final activeColor = widget.tab.isLive ? AppColors.liveRed : AppColors.neonBlue;
 
     return GestureDetector(
       onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (context, child) => Column(
+        builder: (context, _) => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Stack(
               alignment: Alignment.center,
               children: [
-                // Glow background
                 if (widget.isActive)
                   Container(
-                    width: 44,
-                    height: 32,
+                    width: 44, height: 32,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppRadius.sm),
-                      color: (isLive ? AppColors.liveRed : AppColors.neonBlue).withOpacity(_glow.value * 0.15),
+                      color: activeColor.withOpacity(_glow.value * 0.15),
                     ),
                   ),
                 Transform.scale(
@@ -189,18 +151,11 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                   child: Icon(
                     widget.tab.icon,
                     size: 22,
-                    color: widget.isActive
-                        ? (isLive ? AppColors.liveRed : AppColors.neonBlue)
-                        : AppColors.textMuted,
+                    color: widget.isActive ? activeColor : AppColors.textMuted,
                   ),
                 ),
-                // Live dot
-                if (isLive)
-                  Positioned(
-                    top: 0,
-                    right: 8,
-                    child: _LiveDot(),
-                  ),
+                if (widget.tab.isLive)
+                  Positioned(top: 0, right: 8, child: _LiveDot()),
               ],
             ),
             const SizedBox(height: 3),
@@ -209,9 +164,7 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
               style: AppTextStyles.caption.copyWith(
                 fontSize: 10,
                 fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w400,
-                color: widget.isActive
-                    ? (isLive ? AppColors.liveRed : AppColors.neonBlue)
-                    : AppColors.textMuted,
+                color: widget.isActive ? activeColor : AppColors.textMuted,
               ),
             ),
           ],
@@ -255,8 +208,8 @@ class _LiveDotState extends State<_LiveDot> with SingleTickerProviderStateMixin 
 }
 
 class _NavTab {
-  final String path;
   final IconData icon;
   final String label;
-  const _NavTab({required this.path, required this.icon, required this.label});
+  final bool isLive;
+  const _NavTab({required this.icon, required this.label, required this.isLive});
 }

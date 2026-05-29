@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
@@ -369,14 +370,21 @@ class CountdownTimer extends StatefulWidget {
 
 class _CountdownTimerState extends State<CountdownTimer> {
   late Duration _remaining;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _update();
-    Stream.periodic(const Duration(seconds: 1)).listen((_) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(_update);
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   void _update() {

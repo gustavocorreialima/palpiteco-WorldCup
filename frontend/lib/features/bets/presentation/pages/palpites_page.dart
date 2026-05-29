@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../../matches/domain/entities/match.dart';
 import '../../../matches/presentation/widgets/match_card.dart';
@@ -212,6 +214,25 @@ class _PalpitesTab extends StatelessWidget {
   final List<Match> matches;
   const _PalpitesTab({required this.matches});
 
+  Future<void> _submitBet(BuildContext context, String matchId, int home, int away) async {
+    try {
+      await sl<ApiService>().submitBet(
+        matchId: matchId,
+        predictedHome: home,
+        predictedAway: away,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erro ao salvar palpite. Tente novamente.', style: AppTextStyles.body.copyWith(color: Colors.white)),
+          backgroundColor: AppColors.liveRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+        ));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (matches.isEmpty) {
@@ -235,7 +256,9 @@ class _PalpitesTab extends StatelessWidget {
         final match = matches[i];
         return MatchCard(
           match: match,
-          onBetSubmit: match.isScheduled ? (home, away) {} : null,
+          onBetSubmit: match.isScheduled
+              ? (home, away) => _submitBet(context, match.id, home, away)
+              : null,
         );
       },
     );

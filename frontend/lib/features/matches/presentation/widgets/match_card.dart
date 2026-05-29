@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/glass_card.dart';
 import '../../domain/entities/match.dart';
@@ -30,9 +31,9 @@ class _MatchCardState extends State<MatchCard> with SingleTickerProviderStateMix
   late Animation<double> _expandAnim;
   late Animation<double> _arrowAnim;
 
-  bool _showBetInput = false;
-  final _homeCtrl = TextEditingController();
-  final _awayCtrl = TextEditingController();
+  int _homeScore = 0;
+  int _awayScore = 0;
+  bool _betSubmitted = false;
 
   @override
   void initState() {
@@ -51,8 +52,6 @@ class _MatchCardState extends State<MatchCard> with SingleTickerProviderStateMix
   @override
   void dispose() {
     _expandCtrl.dispose();
-    _homeCtrl.dispose();
-    _awayCtrl.dispose();
     super.dispose();
   }
 
@@ -62,12 +61,12 @@ class _MatchCardState extends State<MatchCard> with SingleTickerProviderStateMix
   }
 
   void _submitBet() {
-    final home = int.tryParse(_homeCtrl.text);
-    final away = int.tryParse(_awayCtrl.text);
-    if (home == null || away == null) return;
     HapticFeedback.mediumImpact();
-    widget.onBetSubmit?.call(home, away);
-    setState(() => _showBetInput = false);
+    widget.onBetSubmit?.call(_homeScore, _awayScore);
+    setState(() => _betSubmitted = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _betSubmitted = false);
+    });
   }
 
   Color get _cardBorderColor {
@@ -115,10 +114,14 @@ class _MatchCardState extends State<MatchCard> with SingleTickerProviderStateMix
                   if (widget.match.isScheduled && widget.onBetSubmit != null) ...[
                     const Divider(height: 1, color: AppColors.cardBorder, indent: 16, endIndent: 16),
                     _BetInputPanel(
-                      homeCtrl: _homeCtrl,
-                      awayCtrl: _awayCtrl,
+                      homeScore: _homeScore,
+                      awayScore: _awayScore,
+                      homeLabel: widget.match.homeTeam.shortName ?? widget.match.homeTeam.name,
+                      awayLabel: widget.match.awayTeam.shortName ?? widget.match.awayTeam.name,
+                      submitted: _betSubmitted,
+                      onHomeChange: (v) => setState(() => _homeScore = v),
+                      onAwayChange: (v) => setState(() => _awayScore = v),
                       onSubmit: _submitBet,
-                      match: widget.match,
                     ),
                   ],
                   if (widget.match.isLive && widget.match.liveEvents.isNotEmpty) ...[
@@ -476,23 +479,56 @@ class _H2HBar extends StatelessWidget {
 }
 
 // ===========================================================================
-// BET INPUT PANEL
+// BET INPUT PANEL — stepper +/- premium
 // ===========================================================================
 class _BetInputPanel extends StatelessWidget {
-  final TextEditingController homeCtrl;
-  final TextEditingController awayCtrl;
+  final int homeScore;
+  final int awayScore;
+  final String homeLabel;
+  final String awayLabel;
+  final bool submitted;
+  final void Function(int) onHomeChange;
+  final void Function(int) onAwayChange;
   final VoidCallback onSubmit;
-  final Match match;
 
   const _BetInputPanel({
-    required this.homeCtrl,
-    required this.awayCtrl,
+    required this.homeScore,
+    required this.awayScore,
+    required this.homeLabel,
+    required this.awayLabel,
+    required this.submitted,
+    required this.onHomeChange,
+    required this.onAwayChange,
     required this.onSubmit,
-    required this.match,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (submitted) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: AppColors.neonGreen.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.neonGreen.withOpacity(0.4)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle_rounded, color: AppColors.neonGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Palpite $homeScore – $awayScore enviado!',
+                style: AppTextStyles.body.copyWith(color: AppColors.neonGreen, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       child: Column(
@@ -500,7 +536,7 @@ class _BetInputPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.sports_soccer_rounded, color: AppColors.neonBlue, size: 16),
+              const Icon(Icons.sports_soccer_rounded, color: AppColors.neonBlue, size: 15),
               const SizedBox(width: 6),
               Text('Fazer palpite', style: AppTextStyles.label.copyWith(color: AppColors.neonBlue)),
             ],
@@ -508,21 +544,26 @@ class _BetInputPanel extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _ScoreInput(controller: homeCtrl, label: match.homeTeam.shortName ?? 'Casa'),
               Expanded(
-                child: Center(
-                  child: Text('–', style: AppTextStyles.h2.copyWith(color: AppColors.textMuted)),
+                child: _ScoreStepper(
+                  label: homeLabel,
+                  value: homeScore,
+                  onChanged: onHomeChange,
                 ),
               ),
-              _ScoreInput(controller: awayCtrl, label: match.awayTeam.shortName ?? 'Fora'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text('×', style: AppTextStyles.h2.copyWith(color: AppColors.textMuted, fontSize: 18)),
+              ),
+              Expanded(
+                child: _ScoreStepper(
+                  label: awayLabel,
+                  value: awayScore,
+                  onChanged: onAwayChange,
+                ),
+              ),
               const SizedBox(width: 12),
-              Expanded(
-                child: NeonButton(
-                  label: 'Palpitar',
-                  onTap: onSubmit,
-                  height: 48,
-                ),
-              ),
+              NeonButton(label: 'Palpitar', onTap: onSubmit, height: 48, width: 90),
             ],
           ),
         ],
@@ -531,41 +572,55 @@ class _BetInputPanel extends StatelessWidget {
   }
 }
 
-class _ScoreInput extends StatelessWidget {
-  final TextEditingController controller;
+class _ScoreStepper extends StatelessWidget {
   final String label;
-  const _ScoreInput({required this.controller, required this.label});
+  final int value;
+  final void Function(int) onChanged;
+  const _ScoreStepper({required this.label, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 60,
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 2,
-        style: AppTextStyles.h3,
-        decoration: InputDecoration(
-          counterText: '',
-          labelText: label,
-          labelStyle: AppTextStyles.caption.copyWith(fontSize: 9),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-          filled: true,
-          fillColor: AppColors.bgSecondary,
-          border: OutlineInputBorder(
+    return Column(
+      children: [
+        Text(label, style: AppTextStyles.caption.copyWith(fontSize: 9)),
+        const SizedBox(height: 4),
+        Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: AppColors.bgSecondary,
             borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: const BorderSide(color: AppColors.cardBorder),
+            border: Border.all(color: AppColors.cardBorder),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: const BorderSide(color: AppColors.cardBorder),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: const BorderSide(color: AppColors.neonBlue, width: 1.5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _StepBtn(icon: Icons.remove_rounded, onTap: value > 0 ? () { HapticFeedback.selectionClick(); onChanged(value - 1); } : null),
+              Text(
+                '$value',
+                style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+              ),
+              _StepBtn(icon: Icons.add_rounded, onTap: value < 20 ? () { HapticFeedback.selectionClick(); onChanged(value + 1); } : null),
+            ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _StepBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  const _StepBtn({required this.icon, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 36, height: 48,
+        child: Icon(icon, size: 18, color: onTap != null ? AppColors.neonBlue : AppColors.textMuted),
       ),
     );
   }

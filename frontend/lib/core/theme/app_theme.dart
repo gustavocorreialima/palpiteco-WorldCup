@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // ===========================================================================
 // BOLÃO 2026 — PREMIUM DARK NEON PALETTE
@@ -78,40 +79,41 @@ abstract final class AppColors {
 // TEXT STYLES
 // ===========================================================================
 abstract final class AppTextStyles {
-  static const _base = TextStyle(fontFamily: 'Inter', color: AppColors.textPrimary);
+  static TextStyle _inter(double size, FontWeight weight, {Color color = AppColors.textPrimary, double? height, double? letterSpacing}) =>
+      GoogleFonts.inter(fontSize: size, fontWeight: weight, color: color, height: height, letterSpacing: letterSpacing);
 
   // Display
-  static final display      = _base.copyWith(fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -1.5, height: 1.1);
-  static final h1           = _base.copyWith(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -1.0);
-  static final h2           = _base.copyWith(fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.5);
-  static final h3           = _base.copyWith(fontSize: 18, fontWeight: FontWeight.w700);
+  static TextStyle get display      => _inter(36, FontWeight.w800, letterSpacing: -1.5, height: 1.1);
+  static TextStyle get h1           => _inter(28, FontWeight.w800, letterSpacing: -1.0);
+  static TextStyle get h2           => _inter(22, FontWeight.w700, letterSpacing: -0.5);
+  static TextStyle get h3           => _inter(18, FontWeight.w700);
 
   // Body
-  static final bodyLarge    = _base.copyWith(fontSize: 16, fontWeight: FontWeight.w500, height: 1.5);
-  static final body         = _base.copyWith(fontSize: 14, fontWeight: FontWeight.w400, height: 1.5);
-  static final bodySmall    = _base.copyWith(fontSize: 13, fontWeight: FontWeight.w400, color: AppColors.textSecondary);
+  static TextStyle get bodyLarge    => _inter(16, FontWeight.w500, height: 1.5);
+  static TextStyle get body         => _inter(14, FontWeight.w400, height: 1.5);
+  static TextStyle get bodySmall    => _inter(13, FontWeight.w400, color: AppColors.textSecondary);
 
   // Score
-  static final scoreHuge    = _base.copyWith(fontSize: 48, fontWeight: FontWeight.w800, letterSpacing: -2);
-  static final scoreDigit   = _base.copyWith(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1);
-  static final scoreVs      = _base.copyWith(fontSize: 16, fontWeight: FontWeight.w300, color: AppColors.textMuted);
+  static TextStyle get scoreHuge    => _inter(48, FontWeight.w800, letterSpacing: -2);
+  static TextStyle get scoreDigit   => _inter(32, FontWeight.w800, letterSpacing: -1);
+  static TextStyle get scoreVs      => _inter(16, FontWeight.w300, color: AppColors.textMuted);
 
   // Labels
-  static final label        = _base.copyWith(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.8, color: AppColors.textSecondary);
-  static final labelNeon    = _base.copyWith(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.5);
-  static final caption      = _base.copyWith(fontSize: 11, fontWeight: FontWeight.w400, color: AppColors.textSecondary);
+  static TextStyle get label        => _inter(12, FontWeight.w600, letterSpacing: 0.8, color: AppColors.textSecondary);
+  static TextStyle get labelNeon    => _inter(11, FontWeight.w700, letterSpacing: 1.5);
+  static TextStyle get caption      => _inter(11, FontWeight.w400, color: AppColors.textSecondary);
 
   // Teams
-  static final teamName     = _base.copyWith(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3);
-  static final teamNameSm   = _base.copyWith(fontSize: 12, fontWeight: FontWeight.w600);
+  static TextStyle get teamName     => _inter(14, FontWeight.w700, height: 1.3);
+  static TextStyle get teamNameSm   => _inter(12, FontWeight.w600);
 
   // Ranking
-  static final rankPosition = _base.copyWith(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5);
-  static final rankPoints   = _base.copyWith(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.neonBlue);
+  static TextStyle get rankPosition => _inter(20, FontWeight.w800, letterSpacing: -0.5);
+  static TextStyle get rankPoints   => _inter(15, FontWeight.w700, color: AppColors.neonBlue);
 
   // Button
-  static final button       = _base.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.3);
-  static final buttonSm     = _base.copyWith(fontSize: 13, fontWeight: FontWeight.w600);
+  static TextStyle get button       => _inter(15, FontWeight.w700, letterSpacing: 0.3);
+  static TextStyle get buttonSm     => _inter(13, FontWeight.w600);
 }
 
 // ===========================================================================
@@ -151,7 +153,7 @@ ThemeData buildAppTheme() {
       onPrimary:  AppColors.textPrimary,
       onSurface:  AppColors.textPrimary,
     ),
-    fontFamily: 'Inter',
+    textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
     cardTheme: CardThemeData(
       elevation: 0,
       color: AppColors.card,
@@ -195,21 +197,20 @@ ThemeData buildAppTheme() {
         textStyle: AppTextStyles.button,
       ),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
-      systemOverlayStyle: SystemUiOverlayStyle(
+      systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
       ),
-      titleTextStyle: TextStyle(
-        fontFamily: 'Inter',
+      titleTextStyle: GoogleFonts.inter(
         fontSize: 17,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
       ),
-      iconTheme: IconThemeData(color: AppColors.textPrimary),
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
     ),
     dividerTheme: const DividerThemeData(
       color: AppColors.cardBorder,
