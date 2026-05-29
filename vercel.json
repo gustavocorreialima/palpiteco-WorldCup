@@ -15,7 +15,7 @@
       "dest": "/api/index.ts"
     },
     {
-      "src": "/(.*\\.(js|css|png|svg|ico|woff2?))",
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|webp|gif|svg|ico|woff2?))",
       "dest": "/$1"
     },
     {
